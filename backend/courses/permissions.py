@@ -23,3 +23,10 @@ class IsOwnerOrReadOnly(BasePermission):
             return True
 
         return obj.mentor == request.user
+
+class IsAdmin(BasePermission):
+    def has_permission(self, request, view):
+        return (
+            request.user.is_authenticated
+            and request.user.role == "admin"
+        )

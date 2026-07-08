@@ -7,6 +7,7 @@ from .views import (
     ProgressViewSet,
     QuizViewSet,
     QuestionViewSet,
+    ReviewViewSet,
 )
 
 router = DefaultRouter()
@@ -18,5 +19,6 @@ router.register(r"enrollments", EnrollmentViewSet)
 router.register(r"progress", ProgressViewSet)
 router.register(r"quizzes", QuizViewSet)
 router.register(r"questions", QuestionViewSet)
+router.register(r"reviews", ReviewViewSet)
 
 urlpatterns = router.urls

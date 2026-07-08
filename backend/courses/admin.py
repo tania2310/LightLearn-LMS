@@ -7,6 +7,7 @@ from .models import (
     Progress,
     Quiz,
     Question,
+    Review,
 )
 
 admin.site.register(Course)
@@ -16,3 +17,4 @@ admin.site.register(Enrollment)
 admin.site.register(Progress)
 admin.site.register(Quiz)
 admin.site.register(Question)
+admin.site.register(Review)

@@ -1,6 +1,7 @@
 from django.db import models
 from accounts.models import User
 from django.utils import timezone
+from django.db.models import Avg
 
 
 class Course(models.Model):
@@ -62,6 +63,11 @@ class Course(models.Model):
 
     def __str__(self):
         return self.title
+    
+    @property
+    def average_rating(self):
+        avg = self.reviews.aggregate(avg=Avg("rating"))["avg"]
+        return round(avg, 1) if avg else 0
 
 
 class Module(models.Model):
@@ -187,3 +193,30 @@ class Question(models.Model):
 
     def __str__(self):
         return self.question
+
+class Review(models.Model):
+    student = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="reviews",
+    )
+
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name="reviews",
+    )
+
+    rating = models.PositiveSmallIntegerField()
+
+    comment = models.TextField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    approved = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ("student", "course")
+
+    def __str__(self):
+        return f"{self.student.email} - {self.course.title}"

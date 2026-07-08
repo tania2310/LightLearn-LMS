@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.db.models import Avg
 from .models import (
     Course,
     Module,
@@ -7,6 +8,7 @@ from .models import (
     Progress,
     Quiz,
     Question,
+    Review,
 )
 
 
@@ -26,7 +28,7 @@ class ModuleSerializer(serializers.ModelSerializer):
 
 class CourseSerializer(serializers.ModelSerializer):
     modules = ModuleSerializer(many=True, read_only=True)
-
+    average_rating = serializers.ReadOnlyField()
     class Meta:
         model = Course
         fields = "__all__"
@@ -56,3 +58,9 @@ class QuizSerializer(serializers.ModelSerializer):
     class Meta:
         model = Quiz
         fields = "__all__"
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = "__all__"
+        read_only_fields = ["student", "approved", "created_at"]
