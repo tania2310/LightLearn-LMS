@@ -1,12 +1,13 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
-from .models import Course, Module, Lesson, Enrollment
+from .models import Course, Module, Lesson, Enrollment, Progress
 from .serializers import (
     CourseSerializer,
     ModuleSerializer,
     LessonSerializer,
     EnrollmentSerializer,
+    ProgressSerializer
 )
 from .permissions import IsMentor, IsOwnerOrReadOnly
 
@@ -42,6 +43,14 @@ class LessonViewSet(viewsets.ModelViewSet):
 class EnrollmentViewSet(viewsets.ModelViewSet):
     queryset = Enrollment.objects.all()
     serializer_class = EnrollmentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(student=self.request.user)
+
+class ProgressViewSet(viewsets.ModelViewSet):
+    queryset = Progress.objects.all()
+    serializer_class = ProgressSerializer
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
