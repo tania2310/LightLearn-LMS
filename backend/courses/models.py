@@ -155,3 +155,35 @@ class Progress(models.Model):
 
     def __str__(self):
         return f"{self.student.username} - {self.lesson.title}"
+
+class Quiz(models.Model):
+    lesson = models.ForeignKey(
+        Lesson,
+        on_delete=models.CASCADE,
+        related_name="quizzes"
+    )
+
+    title = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.title
+
+
+class Question(models.Model):
+    quiz = models.ForeignKey(
+        Quiz,
+        on_delete=models.CASCADE,
+        related_name="questions"
+    )
+
+    question = models.TextField()
+
+    option1 = models.CharField(max_length=255)
+    option2 = models.CharField(max_length=255)
+    option3 = models.CharField(max_length=255)
+    option4 = models.CharField(max_length=255)
+
+    correct_option = models.PositiveSmallIntegerField()
+
+    def __str__(self):
+        return self.question

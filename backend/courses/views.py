@@ -1,13 +1,23 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
-from .models import Course, Module, Lesson, Enrollment, Progress
+from .models import (
+    Course,
+    Module,
+    Lesson,
+    Enrollment,
+    Progress,
+    Quiz,
+    Question,
+)
 from .serializers import (
     CourseSerializer,
     ModuleSerializer,
     LessonSerializer,
     EnrollmentSerializer,
-    ProgressSerializer
+    ProgressSerializer,
+    QuizSerializer,
+    QuestionSerializer,
 )
 from .permissions import IsMentor, IsOwnerOrReadOnly
 
@@ -55,3 +65,14 @@ class ProgressViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(student=self.request.user)
+
+class QuizViewSet(viewsets.ModelViewSet):
+    queryset = Quiz.objects.all()
+    serializer_class = QuizSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class QuestionViewSet(viewsets.ModelViewSet):
+    queryset = Question.objects.all()
+    serializer_class = QuestionSerializer
+    permission_classes = [IsAuthenticated]
