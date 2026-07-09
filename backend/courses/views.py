@@ -2,6 +2,11 @@ from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilter
+from django.http import HttpResponse
+from reportlab.pdfgen import canvas
+from rest_framework.views import APIView
 from .models import (
     Course,
     Module,
@@ -88,6 +93,26 @@ class CourseViewSet(viewsets.ModelViewSet):
         return Response(
             {"message": "Course rejected."}
         )
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+
+    filterset_fields = [
+        "category",
+        "level",
+        "language",
+        "status",
+    ]
+
+    search_fields = [
+        "title",
+        "description",
+        "category",
+    ]
+
+    ordering_fields = [
+        "price",
+        "duration",
+        "created_at",
+    ]
 
 class ModuleViewSet(viewsets.ModelViewSet):
     queryset = Module.objects.all()
@@ -134,3 +159,54 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(student=self.request.user)
+
+class CertificateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, course_id):
+        course = Course.objects.get(id=course_id)
+
+        progress = Progress.objects.filter(
+            student=request.user,
+            course=course
+        ).first()
+
+        if not progress or progress.percentage < 100:
+            return Response(
+                {"error": "Complete the course to receive a certificate."},
+                status=400
+            )
+
+        response = HttpResponse(content_type="application/pdf")
+        response["Content-Disposition"] = (
+            f'attachment; filename="{course.title}_certificate.pdf"'
+        )
+
+        p = canvas.Canvas(response)
+
+        p.setFont("Helvetica-Bold", 22)
+        p.drawString(120, 760, "Certificate of Completion")
+
+        p.setFont("Helvetica", 16)
+        p.drawString(
+            80,
+            700,
+            f"This certifies that {request.user.username}"
+        )
+
+        p.drawString(
+            80,
+            670,
+            f"has successfully completed"
+        )
+
+        p.setFont("Helvetica-Bold", 18)
+        p.drawString(
+            80,
+            630,
+            course.title
+        )
+
+        p.save()
+
+        return response

@@ -8,7 +8,9 @@ from .views import (
     QuizViewSet,
     QuestionViewSet,
     ReviewViewSet,
+    CertificateView,
 )
+from django.urls import path
 
 router = DefaultRouter()
 
@@ -22,3 +24,10 @@ router.register(r"questions", QuestionViewSet)
 router.register(r"reviews", ReviewViewSet)
 
 urlpatterns = router.urls
+urlpatterns += [
+    path(
+        "courses/<int:course_id>/certificate/",
+        CertificateView.as_view(),
+        name="certificate",
+    ),
+]
