@@ -9,6 +9,7 @@ from .views import (
     QuestionViewSet,
     ReviewViewSet,
     CertificateView,
+    CertificateViewSet
 )
 from django.urls import path
 
@@ -22,6 +23,7 @@ router.register(r"progress", ProgressViewSet)
 router.register(r"quizzes", QuizViewSet)
 router.register(r"questions", QuestionViewSet)
 router.register(r"reviews", ReviewViewSet)
+router.register(r"certificates", CertificateViewSet)
 
 urlpatterns = router.urls
 urlpatterns += [

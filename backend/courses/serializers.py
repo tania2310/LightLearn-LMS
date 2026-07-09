@@ -9,6 +9,7 @@ from .models import (
     Quiz,
     Question,
     Review,
+    Certificate,
 )
 
 
@@ -64,3 +65,9 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = "__all__"
         read_only_fields = ["student", "approved", "created_at"]
+
+class CertificateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Certificate
+        fields = "__all__"
+        read_only_fields = ["student", "certificate_id", "issued_at"]

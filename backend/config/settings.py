@@ -58,6 +58,8 @@ INSTALLED_APPS = [
     "notifications",
     "certificates",
     "search",
+    "channels",
+    "qa",
 ]
 
 MIDDLEWARE = [

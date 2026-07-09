@@ -16,6 +16,7 @@ from .models import (
     Quiz,
     Question,
     Review,
+    Certificate,
 )
 from .serializers import (
     CourseSerializer,
@@ -26,6 +27,7 @@ from .serializers import (
     QuizSerializer,
     QuestionSerializer,
     ReviewSerializer,
+    CertificateSerializer,
 )
 from .permissions import IsMentor, IsOwnerOrReadOnly, IsAdmin
 
@@ -166,16 +168,42 @@ class CertificateView(APIView):
     def get(self, request, course_id):
         course = Course.objects.get(id=course_id)
 
-        progress = Progress.objects.filter(
+        # Check enrollment first
+        if not Enrollment.objects.filter(
             student=request.user,
             course=course
-        ).first()
-
-        if not progress or progress.percentage < 100:
+        ).exists():
             return Response(
-                {"error": "Complete the course to receive a certificate."},
-                status=400
+                {"error": "You are not enrolled in this course."},
+                status=400,
             )
+
+        # Get all lessons in the course
+        lessons = Lesson.objects.filter(module__course=course)
+
+        total_lessons = lessons.count()
+
+        completed_lessons = Progress.objects.filter(
+            student=request.user,
+            lesson__in=lessons,
+            completed=True,
+        ).count()
+        
+        if total_lessons == 0:
+            return Response(
+                {"error": "This course has no lessons yet."},
+                status=400,
+            )
+
+        if completed_lessons < total_lessons:
+            return Response(
+                {"error": "Complete all lessons before receiving the certificate."},
+                status=400,
+            )
+        certificate, created = Certificate.objects.get_or_create(
+            student=request.user,
+            course=course,
+        )
 
         response = HttpResponse(content_type="application/pdf")
         response["Content-Disposition"] = (
@@ -210,3 +238,11 @@ class CertificateView(APIView):
         p.save()
 
         return response
+
+class CertificateViewSet(viewsets.ModelViewSet):
+    queryset = Certificate.objects.all()
+    serializer_class = CertificateSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(student=self.request.user)

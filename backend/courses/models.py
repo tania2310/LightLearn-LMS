@@ -2,6 +2,7 @@ from django.db import models
 from accounts.models import User
 from django.utils import timezone
 from django.db.models import Avg
+import uuid
 
 
 class Course(models.Model):
@@ -220,3 +221,32 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.student.email} - {self.course.title}"
+
+class Certificate(models.Model):
+    student = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="certificates",
+    )
+
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name="certificates",
+    )
+
+    certificate_id = models.UUIDField(
+        default=uuid.uuid4,
+        editable=False,
+        unique=True,
+    )
+
+    issued_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    class Meta:
+        unique_together = ("student", "course")
+
+    def __str__(self):
+        return f"{self.student.username} - {self.course.title}"
