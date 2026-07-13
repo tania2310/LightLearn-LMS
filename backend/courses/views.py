@@ -140,8 +140,17 @@ class ProgressViewSet(viewsets.ModelViewSet):
     serializer_class = ProgressSerializer
     permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        return Progress.objects.filter(student=self.request.user)
+
     def perform_create(self, serializer):
-        serializer.save(student=self.request.user)
+        lesson = serializer.validated_data["lesson"]
+
+        Progress.objects.update_or_create(
+            student=self.request.user,
+            lesson=lesson,
+            defaults={"completed": True},
+        )
 
 class QuizViewSet(viewsets.ModelViewSet):
     queryset = Quiz.objects.all()
