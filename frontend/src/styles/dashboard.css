@@ -1,0 +1,61 @@
+.dashboard-container {
+    padding: 40px;
+    background: #f8fafc;
+    min-height: 100vh;
+}
+
+.welcome-card {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 40px;
+}
+
+.welcome-card h1 {
+    margin-bottom: 15px;
+    color: #1e293b;
+}
+
+.welcome-card p {
+    margin: 8px 0;
+    color: #475569;
+}
+
+.primary-btn {
+    margin-top: 20px;
+    padding: 12px 24px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.primary-btn:hover {
+    background: #1d4ed8;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.stat-card {
+    background: white;
+    padding: 25px;
+    text-align: center;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.stat-card h2 {
+    font-size: 36px;
+}
+
+.stat-card h3 {
+    margin: 10px 0;
+    color: #1e293b;
+}

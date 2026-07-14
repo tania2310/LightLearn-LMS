@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import API from "../api/api";
 import Navbar from "../components/Navbar";
 import { Link } from "react-router-dom";
 
@@ -12,7 +12,7 @@ function Modules() {
     useEffect(() => {
         const token = localStorage.getItem("access");
 
-        axios
+        API
             .get("http://127.0.0.1:8000/api/modules/", {
                 headers: {
                     Authorization: `Bearer ${token}`,

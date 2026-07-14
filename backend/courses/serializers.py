@@ -71,3 +71,8 @@ class CertificateSerializer(serializers.ModelSerializer):
         model = Certificate
         fields = "__all__"
         read_only_fields = ["student", "certificate_id", "issued_at"]
+
+class QuizSubmissionSerializer(serializers.Serializer):
+    answers = serializers.DictField(
+        child=serializers.IntegerField()
+    )

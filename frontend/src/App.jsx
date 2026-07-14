@@ -7,6 +7,8 @@ import Courses from "./pages/Courses";
 import CourseDetails from "./pages/CourseDetails";
 import Modules from "./pages/Modules";
 import Lessons from "./pages/Lessons";
+import Quiz from "./pages/Quiz";
+import LessonDetails from "./pages/LessonDetails";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -55,6 +57,22 @@ function App() {
         element={
           <ProtectedRoute>
             <Lessons />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/quizzes/:id"
+        element={
+          <ProtectedRoute>
+            <Quiz />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/lessons/:id"
+        element={
+          <ProtectedRoute>
+            <LessonDetails />
           </ProtectedRoute>
         }
       />

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../api/api";
 import Navbar from "../components/Navbar";
 import { Link } from "react-router-dom";
 
@@ -10,7 +10,7 @@ function Courses() {
         const token = localStorage.getItem("access");
         console.log("TOKEN:", token);
 
-        axios
+        API
             .get("http://127.0.0.1:8000/api/courses/", {
                 headers: {
                     Authorization: `Bearer ${token}`,

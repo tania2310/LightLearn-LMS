@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import API from "../api/api";
 import Navbar from "../components/Navbar";
 
 function CourseDetails() {
@@ -19,7 +19,7 @@ function CourseDetails() {
                     Authorization: `Bearer ${token}`,
                 },
             }),
-            axios.get("http://127.0.0.1:8000/api/enrollments/", {
+            API.get("http://127.0.0.1:8000/api/enrollments/", {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -46,7 +46,7 @@ function CourseDetails() {
     const handleEnroll = () => {
         const token = localStorage.getItem("access");
 
-        axios
+        API
             .post(
                 "http://127.0.0.1:8000/api/enrollments/",
                 {

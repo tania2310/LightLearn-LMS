@@ -1,19 +1,14 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../api/api";
 import Navbar from "../components/Navbar";
+import { Link } from "react-router-dom";
+import "../styles/dashboard.css";
 
 function Dashboard() {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        const token = localStorage.getItem("access");
-
-        axios
-            .get("http://127.0.0.1:8000/api/accounts/profile/", {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
+        API.get("profile/")
             .then((response) => {
                 setUser(response.data);
             })
@@ -26,18 +21,43 @@ function Dashboard() {
         <>
             <Navbar />
 
-            <div style={{ padding: "40px" }}>
-                <h1>LightLearn LMS</h1>
-
-                {user ? (
+            <div className="dashboard-container">
+                {user && (
                     <>
-                        <h2>Welcome, {user.username}!</h2>
+                        <div className="welcome-card">
+                            <h1>Welcome, {user.username} 👋</h1>
 
-                        <p>Email: {user.email}</p>
-                        <p>Role: {user.role}</p>
+                            <p>Email: {user.email}</p>
+
+                            <p>Role: {user.role}</p>
+
+                            <Link to="/courses">
+                                <button className="primary-btn">
+                                    Browse Courses
+                                </button>
+                            </Link>
+                        </div>
+
+                        <div className="stats-grid">
+                            <div className="stat-card">
+                                <h2>📚</h2>
+                                <h3>Courses</h3>
+                                <p>Coming Soon</p>
+                            </div>
+
+                            <div className="stat-card">
+                                <h2>✅</h2>
+                                <h3>Progress</h3>
+                                <p>Coming Soon</p>
+                            </div>
+
+                            <div className="stat-card">
+                                <h2>🏆</h2>
+                                <h3>Certificates</h3>
+                                <p>Coming Soon</p>
+                            </div>
+                        </div>
                     </>
-                ) : (
-                    <p>Loading profile...</p>
                 )}
             </div>
         </>

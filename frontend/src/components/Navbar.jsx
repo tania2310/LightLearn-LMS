@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
+import "../styles/navbar.css";
 
 function Navbar() {
     const navigate = useNavigate();
@@ -10,24 +11,19 @@ function Navbar() {
     };
 
     return (
-        <nav
-            style={{
-                padding: "15px",
-                background: "#1e293b",
-                color: "white",
-                display: "flex",
-                gap: "20px",
-            }}
-        >
-            <Link to="/dashboard" style={{ color: "white" }}>
-                Dashboard
-            </Link>
+        <nav className="navbar">
+            <div className="navbar-logo">
+                <Link to="/dashboard">🎓 LightLearn LMS</Link>
+            </div>
 
-            <Link to="/courses" style={{ color: "white" }}>
-                Courses
-            </Link>
+            <div className="navbar-links">
+                <Link to="/dashboard">Dashboard</Link>
+                <Link to="/courses">Courses</Link>
 
-            <button onClick={logout}>Logout</button>
+                <button className="logout-btn" onClick={logout}>
+                    Logout
+                </button>
+            </div>
         </nav>
     );
 }

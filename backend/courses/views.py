@@ -105,7 +105,7 @@ class CourseViewSet(viewsets.ModelViewSet):
     ]
 
     search_fields = [
-        "title",
+        "title",        
         "description",
         "category",
     ]
@@ -156,6 +156,24 @@ class QuizViewSet(viewsets.ModelViewSet):
     queryset = Quiz.objects.all()
     serializer_class = QuizSerializer
     permission_classes = [IsAuthenticated]
+
+    @action(detail=True, methods=["post"])
+    def submit(self, request, pk=None):
+        quiz = Quiz.objects.get(pk=pk)
+
+        answers = request.data.get("answers", {})
+
+        score = 0
+
+        for question in quiz.questions.all():
+           if str(question.id) in answers:
+               if answers[str(question.id)] == question.correct_option:
+                   score += 1
+
+        return Response({
+            "score": score,
+            "total": quiz.questions.count(),
+    })
 
 
 class QuestionViewSet(viewsets.ModelViewSet):

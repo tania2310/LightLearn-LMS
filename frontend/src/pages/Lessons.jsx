@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import API from "../api/api";
 import Navbar from "../components/Navbar";
 
 function Lessons() {
@@ -12,7 +12,7 @@ function Lessons() {
     useEffect(() => {
         const token = localStorage.getItem("access");
 
-        axios
+        API
             .get("http://127.0.0.1:8000/api/lessons/", {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -28,7 +28,7 @@ function Lessons() {
             .catch((error) => {
                 console.log(error);
             });
-        axios
+        API
             .get("http://127.0.0.1:8000/api/progress/", {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -43,7 +43,7 @@ function Lessons() {
     const markComplete = (lessonId) => {
         const token = localStorage.getItem("access");
 
-        axios
+        API
             .post(
                 "http://127.0.0.1:8000/api/progress/",
                 {
@@ -82,7 +82,10 @@ function Lessons() {
                                 borderRadius: "8px",
                             }}
                         >
-                            <h3>{lesson.title}</h3>
+                            <h3><Link to={`/lessons/${lesson.id}`}>
+                                {lesson.title}
+                            </Link>
+                            </h3>
 
                             <p>
                                 <strong>Type:</strong> {lesson.lesson_type}
