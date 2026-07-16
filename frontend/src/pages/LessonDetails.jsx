@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import API from "../api/api";
 import Navbar from "../components/Navbar";
 
 function LessonDetails() {
@@ -8,16 +8,11 @@ function LessonDetails() {
     const navigate = useNavigate();
     const [lesson, setLesson] = useState(null);
     const [completed, setCompleted] = useState(false);
+    const role = localStorage.getItem("role");
 
     useEffect(() => {
-        const token = localStorage.getItem("access");
-
-        axios
-            .get(`http://127.0.0.1:8000/api/lessons/${id}/`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
+        API
+            .get(`lessons/${id}/`)
             .then((response) => {
                 setLesson(response.data);
             })
@@ -27,21 +22,11 @@ function LessonDetails() {
     }, [id]);
 
     const markComplete = () => {
-        const token = localStorage.getItem("access");
-
-        axios
-            .post(
-                "http://127.0.0.1:8000/api/progress/",
-                {
-                    lesson: lesson.id,
-                    completed: true,
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            )
+        API
+            .post("progress/", {
+                lesson: lesson.id,
+                completed: true,
+            })
             .then(() => {
                 setCompleted(true);
                 alert("Lesson completed!");
@@ -54,27 +39,23 @@ function LessonDetails() {
     if (!lesson) {
         return <p>Loading...</p>;
     }
+    const fileUrl = lesson.content;
+    console.log("Lesson:", lesson);
+    console.log("File URL:", fileUrl);
+
     const goToQuiz = () => {
-        const token = localStorage.getItem("access");
-
-        axios
-            .get("http://127.0.0.1:8000/api/quizzes/", {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
+        API
+            .get(`quizzes/?lesson=${lesson.id}`)
             .then((response) => {
-                const quiz = response.data.find(
-                    (q) => q.lesson === lesson.id
-                );
-
-                if (quiz) {
-                    navigate(`/quizzes/${quiz.id}`);
+                if (response.data.length > 0) {
+                    navigate(`/quiz/${response.data[0].id}`);
                 } else {
                     alert("No quiz available for this lesson.");
                 }
             })
-            .catch(console.log);
+            .catch((error) => {
+                console.log(error);
+            });
     };
 
     return (
@@ -83,52 +64,101 @@ function LessonDetails() {
 
             <div style={{ padding: "40px" }}>
                 <h1>{lesson.title}</h1>
+                <p>
+                    <strong>Lesson Type:</strong> {lesson.lesson_type}
+                </p>
 
-                <p>Type: {lesson.lesson_type}</p>
+                <p>
+                    <strong>Lesson Order:</strong> {lesson.order}
+                </p>
 
-                {lesson.lesson_type === "video" ? (
-                    <video width="700" controls>
-                        <source src={lesson.content} />
+                <hr />
+
+                {lesson.lesson_type === "video" && (
+                    <video
+                        width="800"
+                        controls
+                        style={{
+                            borderRadius: "10px",
+                            marginTop: "20px",
+                        }}
+                    >
+                        <source src={fileUrl} />
+                        Your browser does not support video.
                     </video>
-                ) : (
-                    <iframe
-                        src={lesson.content}
-                        width="100%"
-                        height="600"
-                        title="Lesson"
-                    />
                 )}
 
-                <br />
-                <br />
-                {completed ? (
-                    <>
-                        <button disabled>
-                            ✅ Completed
-                        </button>
+                {lesson.lesson_type === "pdf" && (
+                    <div style={{ marginTop: "20px" }}>
+                        <a
+                            href={fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            📄 View PDF
+                        </a>
 
-                        <br />
-                        <br />
+                        <br /><br />
 
-                        <button onClick={goToQuiz}>
-                            Take Quiz
+                        <a href={fileUrl} download>
+                            ⬇ Download PDF
+                        </a>
+                    </div>
+                )}
+
+                {lesson.lesson_type === "document" && (
+                    <div style={{ marginTop: "20px" }}>
+                        <a
+                            href={fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            📑 Open Document
+                        </a>
+                    </div>
+                )}
+                <div
+                    style={{
+                        marginTop: "30px",
+                        display: "flex",
+                        gap: "10px",
+                        flexWrap: "wrap",
+                    }}
+                >
+                    {role === "student" && (
+                        <>
+                            {completed ? (
+                                <button disabled>✅ Completed</button>
+                            ) : (
+                                <button onClick={markComplete}>
+                                    Mark as Completed
+                                </button>
+                            )}
+
+                            <button onClick={goToQuiz}>
+                                Take Quiz
+                            </button>
+                        </>
+                    )}
+
+                    {role === "mentor" && (
+                        <button
+                            onClick={() =>
+                                navigate(`/lessons/${lesson.id}/create-quiz`)
+                            }
+                        >
+                            Create Quiz
                         </button>
-                    </>
-                ) : (
-                    <button onClick={markComplete}>
-                        Mark as Completed
+                    )}
+
+                    <button onClick={() => navigate(-1)}>
+                        Back
                     </button>
-                )}
-
-                <br />
-                <br />
-
-                <button onClick={() => navigate(-1)}>
-                    Back to Modules
-                </button>
+                </div>
             </div>
         </>
     );
+
 }
 
 export default LessonDetails;

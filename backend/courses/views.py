@@ -1,12 +1,13 @@
 from rest_framework import viewsets, status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django.http import HttpResponse
 from reportlab.pdfgen import canvas
 from rest_framework.views import APIView
+from django.contrib.auth import get_user_model
 from .models import (
     Course,
     Module,
@@ -30,7 +31,7 @@ from .serializers import (
     CertificateSerializer,
 )
 from .permissions import IsMentor, IsOwnerOrReadOnly, IsAdmin
-
+User = get_user_model()
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()      # <-- add this
     serializer_class = CourseSerializer
@@ -56,7 +57,15 @@ class CourseViewSet(viewsets.ModelViewSet):
         return [IsAuthenticated()]
 
     def perform_create(self, serializer):
-        serializer.save(mentor=self.request.user)
+        serializer.save(
+            mentor=self.request.user,
+            status="pending"
+        )
+    def perform_update(self, serializer):
+        if self.request.user.role == "mentor":
+            serializer.save(status="pending")
+        else:
+            serializer.save()
 
     @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
     def submit(self, request, pk=None):
@@ -116,25 +125,60 @@ class CourseViewSet(viewsets.ModelViewSet):
         "created_at",
     ]
 
+    @action(detail=False, methods=["get"], permission_classes=[IsAdmin])
+    def pending(self, request):
+        serializer = self.get_serializer(
+            Course.objects.filter(status="pending"),
+            many=True
+        )
+        return Response(serializer.data)
+
 class ModuleViewSet(viewsets.ModelViewSet):
     queryset = Module.objects.all()
     serializer_class = ModuleSerializer
-    permission_classes = [IsAuthenticated]
 
+    def get_permissions(self):
+
+        if self.action in [
+            "create",
+            "update",
+            "partial_update",
+            "destroy",
+        ]:
+            return [IsMentor()]
+
+        return [IsAuthenticated()]
 
 class LessonViewSet(viewsets.ModelViewSet):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
-    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.action in [
+            "create",
+            "update",
+            "partial_update",
+            "destroy",
+        ]:
+            return [IsMentor()]
+
+        return [IsAuthenticated()]
 
 class EnrollmentViewSet(viewsets.ModelViewSet):
-    queryset = Enrollment.objects.all()
     serializer_class = EnrollmentSerializer
     permission_classes = [IsAuthenticated]
 
-    def perform_create(self, serializer):
-        serializer.save(student=self.request.user)
+    def get_queryset(self):
+        if self.request.user.role == "admin":
+            return Enrollment.objects.all()
 
+        return Enrollment.objects.filter(student=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(
+            student=self.request.user,
+            status="pending",
+        )
 class ProgressViewSet(viewsets.ModelViewSet):
     queryset = Progress.objects.all()
     serializer_class = ProgressSerializer
@@ -156,24 +200,33 @@ class QuizViewSet(viewsets.ModelViewSet):
     queryset = Quiz.objects.all()
     serializer_class = QuizSerializer
     permission_classes = [IsAuthenticated]
+    def get_queryset(self):
+        lesson = self.request.query_params.get("lesson")
+
+        if lesson:
+            return Quiz.objects.filter(lesson=lesson)
+
+        return Quiz.objects.all()
 
     @action(detail=True, methods=["post"])
     def submit(self, request, pk=None):
-        quiz = Quiz.objects.get(pk=pk)
+        quiz = self.get_object()
 
         answers = request.data.get("answers", {})
 
         score = 0
 
         for question in quiz.questions.all():
-           if str(question.id) in answers:
-               if answers[str(question.id)] == question.correct_option:
-                   score += 1
+            answer = int(answers.get(str(question.id), 0))
 
+            if answer == question.correct_option:
+                score += 1
+        
         return Response({
             "score": score,
             "total": quiz.questions.count(),
-    })
+            "passed": score >= quiz.questions.count() * 0.5
+        })
 
 
 class QuestionViewSet(viewsets.ModelViewSet):
@@ -273,3 +326,61 @@ class CertificateViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(student=self.request.user)
+
+class AdminStatsView(APIView):
+    permission_classes = [IsAdmin]
+
+    def get(self, request):
+        data = {
+            "students": User.objects.filter(role="student").count(),
+            "mentors": User.objects.filter(role="mentor").count(),
+            "courses": Course.objects.count(),
+            "pending": Course.objects.filter(status="pending").count(),
+            "approved": Course.objects.filter(status="approved").count(),
+            "rejected": Course.objects.filter(status="rejected").count(),
+        }
+
+        return Response(data)
+
+@api_view(["GET"])
+@permission_classes([IsAdmin])
+def admin_stats(request):
+    return Response({
+        "users": User.objects.count(),
+        "students": User.objects.filter(role="student").count(),
+        "mentors": User.objects.filter(role="mentor").count(),
+        "courses": Course.objects.count(),
+        "pending": Course.objects.filter(status="pending").count(),
+        "approved": Course.objects.filter(status="approved").count(),
+    })
+
+@api_view(["GET"])
+@permission_classes([IsAdminUser])
+def pending_enrollments(request):
+    enrollments = Enrollment.objects.filter(status="pending")
+    serializer = EnrollmentSerializer(enrollments, many=True)
+    return Response(serializer.data)
+
+@api_view(["POST"])
+@permission_classes([IsAdminUser])
+def approve_enrollment(request, enrollment_id):
+    enrollment = Enrollment.objects.get(id=enrollment_id)
+
+    enrollment.status = "approved"
+    enrollment.save()
+
+    return Response({
+        "message": "Enrollment approved."
+    })
+
+@api_view(["POST"])
+@permission_classes([IsAdminUser])
+def approve_enrollment(request, enrollment_id):
+    enrollment = Enrollment.objects.get(id=enrollment_id)
+
+    enrollment.status = "approved"
+    enrollment.save()
+
+    return Response({
+        "message": "Enrollment approved successfully."
+    })

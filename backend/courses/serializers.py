@@ -30,6 +30,8 @@ class ModuleSerializer(serializers.ModelSerializer):
 class CourseSerializer(serializers.ModelSerializer):
     modules = ModuleSerializer(many=True, read_only=True)
     average_rating = serializers.ReadOnlyField()
+    mentor = serializers.StringRelatedField(read_only=True)
+
     class Meta:
         model = Course
         fields = "__all__"

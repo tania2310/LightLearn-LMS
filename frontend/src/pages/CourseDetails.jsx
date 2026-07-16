@@ -11,34 +11,31 @@ function CourseDetails() {
     const [enrolled, setEnrolled] = useState(false);
 
     useEffect(() => {
-        const token = localStorage.getItem("access");
-
         Promise.all([
-            axios.get(`http://127.0.0.1:8000/api/courses/${id}/`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            }),
-            API.get("http://127.0.0.1:8000/api/enrollments/", {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            }),
+            API.get(`courses/${id}/`),
+            API.get("enrollments/"),
         ])
-            .then(([courseResponse, enrollmentResponse]) => {
-                setCourse(courseResponse.data);
+            .then(([courseRes, enrollmentRes]) => {
+                setCourse(courseRes.data);
 
-                const found = enrollmentResponse.data.find(
-                    (enrollment) => enrollment.course === Number(id)
+                const enrollment = enrollmentRes.data.find(
+                    (e) => e.course === Number(id)
                 );
 
-                setEnrolled(!!found);
+                if (enrollment) {
+                    if (enrollment.status === "approved") {
+                        setEnrolled(true);
+                    } else if (enrollment.status === "pending") {
+                        alert("Your enrollment is awaiting admin approval.");
+                    } else if (enrollment.status === "rejected") {
+                        alert("Your enrollment was rejected.");
+                    }
+                }
             })
             .catch((error) => {
                 console.log(error);
             });
     }, [id]);
-
 
     if (!course) {
         return <p>Loading...</p>;
@@ -59,9 +56,7 @@ function CourseDetails() {
                 }
             )
             .then(() => {
-                alert("Enrolled successfully!");
-                setEnrolled(true);
-                navigate(`/courses/${course.id}/modules`);
+                alert("Enrollment request sent. Please wait for admin approval.");
             })
             .catch((error) => {
                 console.log(error);
@@ -93,15 +88,13 @@ function CourseDetails() {
 
                 {enrolled ? (
                     <button
-                        onClick={() =>
-                            navigate(`/courses/${course.id}/modules`)
-                        }
+                        onClick={() => navigate(`/courses/${course.id}/modules`)}
                     >
-                        Go to Course
+                        Start Learning
                     </button>
                 ) : (
                     <button onClick={handleEnroll}>
-                        Enroll
+                        Request Enrollment
                     </button>
                 )}
             </div>

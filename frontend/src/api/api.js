@@ -1,56 +1,45 @@
 import axios from "axios";
 
 const API = axios.create({
-    baseURL: "http://127.0.0.1:8000/api/accounts/",
+    baseURL: "http://127.0.0.1:8000/api/",
 });
 
-API.interceptors.request.use((config) => {
-    const token = localStorage.getItem("access");
+API.interceptors.request.use(
+    async (config) => {
+        let access = localStorage.getItem("access");
+        const refresh = localStorage.getItem("refresh");
 
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
+        if (access) {
+            try {
+                const payload = JSON.parse(atob(access.split(".")[1]));
+                const expiry = payload.exp * 1000;
 
-    return config;
-});
-
-API.interceptors.response.use(
-    (response) => response,
-
-    async (error) => {
-        const originalRequest = error.config;
-
-        if (
-            error.response?.status === 401 &&
-            !originalRequest._retry
-        ) {
-            originalRequest._retry = true;
-
-            const refresh = localStorage.getItem("refresh");
-
-            if (refresh) {
-                try {
+                if (Date.now() >= expiry && refresh) {
                     const response = await axios.post(
                         "http://127.0.0.1:8000/api/accounts/refresh/",
-                        { refresh }
+                        {
+                            refresh,
+                        }
                     );
 
-                    localStorage.setItem("access", response.data.access);
-
-                    originalRequest.headers.Authorization =
-                        `Bearer ${response.data.access}`;
-
-                    return API(originalRequest);
-                } catch {
-                    localStorage.removeItem("access");
-                    localStorage.removeItem("refresh");
-                    window.location.href = "/";
+                    access = response.data.access;
+                    localStorage.setItem("access", access);
                 }
+
+                config.headers.Authorization = `Bearer ${access}`;
+            } catch (error) {
+                console.log("Token refresh failed", error);
+
+                localStorage.removeItem("access");
+                localStorage.removeItem("refresh");
+
+                window.location.href = "/";
             }
         }
 
-        return Promise.reject(error);
-    }
+        return config;
+    },
+    (error) => Promise.reject(error)
 );
 
 export default API;

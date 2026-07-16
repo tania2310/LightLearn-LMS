@@ -1,23 +1,17 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import API from "../api/api";
 import Navbar from "../components/Navbar";
-import { Link } from "react-router-dom";
 
 function Modules() {
     const { id } = useParams();
+    const role = localStorage.getItem("role");
 
     const [modules, setModules] = useState([]);
 
     useEffect(() => {
-        const token = localStorage.getItem("access");
-
         API
-            .get("http://127.0.0.1:8000/api/modules/", {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
+            .get("modules/")
             .then((response) => {
                 const filtered = response.data.filter(
                     (module) => module.course === Number(id)
@@ -30,24 +24,80 @@ function Modules() {
             });
     }, [id]);
 
+    const deleteModule = (moduleId) => {
+
+        if (!window.confirm("Delete this module?")) return;
+
+        API.delete(`modules/${moduleId}/`)
+            .then(() => {
+
+                alert("Module deleted.");
+
+                setModules(prev =>
+                    prev.filter(module => module.id !== moduleId)
+                );
+
+            })
+            .catch(console.log);
+    };
+
     return (
         <>
             <Navbar />
 
             <div style={{ padding: "40px" }}>
                 <h1>Modules</h1>
+                {role === "mentor" && (
+                    <>
+                        <Link to={`/courses/${id}/modules/create`}>
+                            <button>Add Module</button>
+                        </Link>
+
+                        <br /><br />
+                    </>
+                )}
 
                 {modules.length === 0 ? (
                     <p>No modules yet.</p>
                 ) : (
                     modules.map((module) => (
-                        <div key={module.id}>
+                        <div
+                            key={module.id}
+                            style={{
+                                border: "1px solid #ddd",
+                                padding: 20,
+                                borderRadius: 10,
+                                marginBottom: 20,
+                            }}
+                        >
                             <h3>
                                 <Link to={`/modules/${module.id}/lessons`}>
                                     {module.title}
                                 </Link>
                             </h3>
+
                             <p>{module.description}</p>
+
+                            {role === "mentor" && (
+                                <div style={{ marginTop: 15 }}>
+
+                                    <Link to={`/modules/${module.id}/edit`}>
+                                        <button>Edit</button>
+                                    </Link>
+
+                                    <button
+                                        onClick={() => deleteModule(module.id)}
+                                        style={{
+                                            marginLeft: 10,
+                                            background: "#dc3545",
+                                            color: "white",
+                                        }}
+                                    >
+                                        Delete
+                                    </button>
+
+                                </div>
+                            )}
                         </div>
                     ))
                 )}

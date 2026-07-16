@@ -9,7 +9,10 @@ from .views import (
     QuestionViewSet,
     ReviewViewSet,
     CertificateView,
-    CertificateViewSet
+    CertificateViewSet,
+    AdminStatsView,
+    pending_enrollments,
+    approve_enrollment,
 )
 from django.urls import path
 
@@ -33,3 +36,13 @@ urlpatterns += [
         name="certificate",
     ),
 ]
+path("admin/stats/", AdminStatsView.as_view()),
+path(
+    "enrollments/pending/",
+    pending_enrollments,
+),
+
+path(
+    "enrollments/approve/<int:enrollment_id>/",
+    approve_enrollment,
+),

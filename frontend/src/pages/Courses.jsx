@@ -7,15 +7,8 @@ function Courses() {
     const [courses, setCourses] = useState([]);
 
     useEffect(() => {
-        const token = localStorage.getItem("access");
-        console.log("TOKEN:", token);
-
         API
-            .get("http://127.0.0.1:8000/api/courses/", {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
+            .get("courses/")
             .then((response) => {
                 console.log(response.data);
                 setCourses(response.data);

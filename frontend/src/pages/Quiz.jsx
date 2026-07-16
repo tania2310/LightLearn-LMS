@@ -1,47 +1,33 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import axios from "axios";
+import { useParams, useNavigate } from "react-router-dom";
+import API from "../api/api";
 import Navbar from "../components/Navbar";
 
 function Quiz() {
     const { id } = useParams();
+    const navigate = useNavigate();
 
     const [quiz, setQuiz] = useState(null);
     const [questions, setQuestions] = useState([]);
     const [answers, setAnswers] = useState({});
-    const [score, setScore] = useState(null);
 
     useEffect(() => {
-        const token = localStorage.getItem("access");
+        Promise.all([
+            API.get(`quizzes/${id}/`),
+            API.get("questions/"),
+        ])
+            .then(([quizRes, questionRes]) => {
+                setQuiz(quizRes.data);
 
-        axios
-            .get(`http://127.0.0.1:8000/api/quizzes/${id}/`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-            .then((response) => {
-                setQuiz(response.data);
-                const token = localStorage.getItem("access");
+                const filtered = questionRes.data.filter(
+                    q => q.quiz === Number(id)
+                );
 
-                axios
-                    .get("http://127.0.0.1:8000/api/questions/", {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    })
-                    .then((res) => {
-                        const quizQuestions = res.data.filter(
-                            (q) => q.quiz === Number(id)
-                        );
-
-                        setQuestions(quizQuestions);
-                    });
+                setQuestions(filtered);
             })
             .catch(console.log);
     }, [id]);
 
-    if (!quiz) return <p>Loading...</p>;
     const handleAnswer = (questionId, option) => {
         setAnswers({
             ...answers,
@@ -49,25 +35,28 @@ function Quiz() {
         });
     };
     const submitQuiz = () => {
-        const token = localStorage.getItem("access");
+        if (Object.keys(answers).length !== questions.length) {
+            alert("Please answer all questions.");
+            return;
+        }
 
-        axios
-            .post(
-                `http://127.0.0.1:8000/api/quizzes/${quiz.id}/submit/`,
-                {
-                    answers,
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            )
+        API.post(`quizzes/${quiz.id}/submit/`, {
+            answers: answers,
+        })
             .then((response) => {
-                setScore(response.data.score);
+                const data = response.data;
+
+                alert(
+                    `Score: ${data.score}/${data.total}\n${data.passed ? "PASS 🎉" : "FAIL ❌"
+                    }`
+                );
+
+                navigate("/dashboard");
             })
             .catch(console.log);
     };
+
+    if (!quiz) return <p>Loading...</p>;
 
     return (
         <>
@@ -75,79 +64,51 @@ function Quiz() {
 
             <div style={{ padding: "40px" }}>
                 <h1>{quiz.title}</h1>
-                {questions.map((question, index) => (
+
+                {questions.map((q, index) => (
                     <div
-                        key={question.id}
+                        key={q.id}
                         style={{
-                            border: "1px solid #ccc",
+                            border: "1px solid #ddd",
                             padding: "20px",
-                            marginTop: "20px",
-                            borderRadius: "8px",
+                            marginBottom: "20px",
+                            borderRadius: "10px",
                         }}
                     >
                         <h3>
-                            {index + 1}. {question.question}
+                            {index + 1}. {q.question}
                         </h3>
 
-                        <label>
-                            <input
-                                type="radio"
-                                name={`question-${question.id}`}
-                                value="1"
-                                onChange={() => handleAnswer(question.id, 1)}
-                            />
-                            {question.option1}
-                        </label>
+                        {[1, 2, 3, 4].map(num => (
+                            <div key={num}>
+                                <label>
+                                    <input
+                                        type="radio"
+                                        name={`question-${q.id}`}
+                                        checked={answers[q.id] === num}
+                                        onChange={() =>
+                                            handleAnswer(q.id, num)
+                                        }
+                                    />
 
-                        <br />
+                                    {" "}
 
-                        <label>
-                            <input
-                                type="radio"
-                                name={`question-${question.id}`}
-                                value="2"
-                                onChange={() => handleAnswer(question.id, 2)}
-                            />
-                            {question.option2}
-                        </label>
-
-                        <br />
-
-                        <label>
-                            <input
-                                type="radio"
-                                name={`question-${question.id}`}
-                                value="3"
-                                onChange={() => handleAnswer(question.id, 3)}
-                            />
-                            {question.option3}
-                        </label>
-
-                        <br />
-
-                        <label>
-                            <input
-                                type="radio"
-                                name={`question-${question.id}`}
-                                value="4"
-                                onChange={() => handleAnswer(question.id, 4)}
-                            />
-                            {question.option4}
-                        </label>
-                        <br />
-
-                        <button onClick={submitQuiz}>
-                            Submit Quiz
-                        </button>
-                        {score !== null && (
-                            <div style={{ marginTop: "20px" }}>
-                                <h2>
-                                    Score: {score} / {questions.length}
-                                </h2>
+                                    {q[`option${num}`]}
+                                </label>
                             </div>
-                        )}
+                        ))}
                     </div>
                 ))}
+
+                <button onClick={submitQuiz}>
+                    Submit Quiz
+                </button>
+                <button
+                    onClick={() => navigate(-1)}
+                    style={{ marginLeft: "10px" }}
+                >
+                    Cancel
+                </button>
 
             </div>
         </>

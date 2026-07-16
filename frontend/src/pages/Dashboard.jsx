@@ -8,7 +8,7 @@ function Dashboard() {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        API.get("profile/")
+        API.get("accounts/profile/")
             .then((response) => {
                 setUser(response.data);
             })

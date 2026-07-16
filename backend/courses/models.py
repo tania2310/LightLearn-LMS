@@ -92,7 +92,7 @@ class Lesson(models.Model):
     LESSON_TYPES = [
         ("video", "Video"),
         ("pdf", "PDF"),
-        ("document", "Document"),
+        ("text", "Text"),
     ]
 
     module = models.ForeignKey(
@@ -118,6 +118,17 @@ class Lesson(models.Model):
         return self.title
 
 class Enrollment(models.Model):
+    STATUS_CHOICES = [
+    ("pending", "Pending"),
+    ("approved", "Approved"),
+    ("rejected", "Rejected"),
+    ]
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="pending",
+    )
     student = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -129,6 +140,7 @@ class Enrollment(models.Model):
         on_delete=models.CASCADE,
         related_name="enrollments"
     )
+    
 
     enrolled_at = models.DateTimeField(default=timezone.now)
 

@@ -3,6 +3,7 @@ from django.db import models
 
 
 class User(AbstractUser):
+    is_approved = models.BooleanField(default=False)
 
     STUDENT = "student"
     MENTOR = "mentor"
@@ -21,7 +22,18 @@ class User(AbstractUser):
     )
 
     phone_number = models.CharField(max_length=15, blank=True)
-    profile_picture = models.ImageField(upload_to="profiles/", blank=True, null=True)
+    profile_picture = models.ImageField(
+        upload_to="profiles/",
+        blank=True,
+        null=True
+    )
 
     def __str__(self):
         return self.username
+
+    def save(self, *args, **kwargs):
+        # Students are approved automatically
+        if self.role == "student":
+            self.is_approved = True
+
+        super().save(*args, **kwargs)

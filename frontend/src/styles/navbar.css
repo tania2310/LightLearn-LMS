@@ -1,44 +1,85 @@
 .navbar {
+    height: 70px;
     background: #1e293b;
-    color: white;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 40px;
-}
-
-.navbar-logo a {
+    padding: 0 40px;
     color: white;
-    text-decoration: none;
-    font-size: 24px;
-    font-weight: bold;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, .15);
 }
 
-.navbar-links {
+.logo {
+    font-size: 28px;
+    font-weight: 700;
+    color: white;
+}
+
+.nav-links {
     display: flex;
     align-items: center;
-    gap: 25px;
+    gap: 30px;
 }
 
-.navbar-links a {
+.nav-links a {
     color: white;
     text-decoration: none;
-    font-size: 16px;
-    transition: 0.3s;
+    font-size: 17px;
+    font-weight: 500;
+    transition: .25s;
 }
 
-.navbar-links a:hover {
-    color: #38bdf8;
+.nav-links a:hover {
+    color: #60a5fa;
+}
+
+.user-section {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.badge {
+    padding: 5px 14px;
+    border-radius: 30px;
+    text-transform: capitalize;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.student {
+    background: #16a34a;
+}
+
+.mentor {
+    background: #ea580c;
+}
+
+.admin {
+    background: #dc2626;
+}
+
+.avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #2563eb;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 18px;
+    color: white;
 }
 
 .logout-btn {
     background: #ef4444;
     color: white;
     border: none;
-    padding: 8px 18px;
-    border-radius: 6px;
+    padding: 10px 18px;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 15px;
+    transition: .2s;
 }
 
 .logout-btn:hover {

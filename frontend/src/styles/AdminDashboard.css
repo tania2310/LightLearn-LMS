@@ -1,0 +1,57 @@
+.admin-dashboard {
+    padding: 40px;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+    margin: 30px 0;
+}
+
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, .1);
+}
+
+.course-card {
+    display: flex;
+    gap: 25px;
+    margin: 25px 0;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, .1);
+}
+
+.course-card img {
+    width: 250px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+.course-info {
+    flex: 1;
+}
+
+.course-info button {
+    margin-right: 10px;
+    margin-top: 15px;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.course-info button:first-of-type {
+    background: #22c55e;
+    color: white;
+}
+
+.course-info button:last-of-type {
+    background: #ef4444;
+    color: white;
+}
