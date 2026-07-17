@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../api/api";
 import Navbar from "../components/Navbar";
+import LessonViewer from "./LessonViewer";
 
 function LessonDetails() {
     const { id } = useParams();
@@ -9,6 +10,10 @@ function LessonDetails() {
     const [lesson, setLesson] = useState(null);
     const [completed, setCompleted] = useState(false);
     const role = localStorage.getItem("role");
+
+    if (role === "student") {
+        return <LessonViewer />;
+    }
 
     useEffect(() => {
         API

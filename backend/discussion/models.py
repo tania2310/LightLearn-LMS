@@ -10,6 +10,15 @@ class ChatRoom(models.Model):
         related_name="chat_room"
     )
     created_at = models.DateTimeField(auto_now_add=True)
+    is_locked = models.BooleanField(default=False)
+    locked_at = models.DateTimeField(null=True, blank=True)
+    locked_by = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="locked_rooms"
+    )
 
     def __str__(self):
         return f"{self.course.title} Chat"

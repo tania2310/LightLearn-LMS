@@ -27,8 +27,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         else:
             user.is_approved = False
 
+        user.is_email_verified = False
+
         user.set_password(password)
-        user.save() 
+        user.save()
 
         return user
 
@@ -46,18 +48,17 @@ class UserSerializer(serializers.ModelSerializer):
         ]
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        return super().get_token(user)
 
     def validate(self, attrs):
-        data = super().validate(attrs)
 
-        # Block unapproved mentors
-        if self.user.role == "mentor" and not self.user.is_approved:
-            raise AuthenticationFailed(
-                "Your mentor account is awaiting admin approval."
+        user = User.objects.get(username=attrs["username"])
+
+        if not user.is_email_verified:
+            raise serializers.ValidationError(
+                "Please verify your OTP before logging in."
             )
+
+        data = super().validate(attrs)
 
         data["user"] = {
             "id": self.user.id,

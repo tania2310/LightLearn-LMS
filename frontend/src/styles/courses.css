@@ -1,0 +1,154 @@
+.courses-page {
+    padding: 40px;
+    background: #f5f7fb;
+    min-height: 100vh;
+}
+
+.courses-page h1 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.search-box {
+    width: 100%;
+    max-width: 600px;
+    display: block;
+    margin: 0 auto 35px;
+    padding: 12px 18px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.course-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 25px;
+}
+
+.course-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, .08);
+    display: flex;
+    flex-direction: column;
+}
+
+.course-card h2 {
+    margin-bottom: 10px;
+    color: #1e3a8a;
+}
+
+.mentor {
+    color: #666;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+.course-card p {
+    line-height: 1.6;
+}
+
+.course-info {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+    font-weight: 600;
+}
+
+.details-btn {
+    margin-top: 20px;
+    text-align: center;
+    background: #2563eb;
+    color: white;
+    text-decoration: none;
+    padding: 10px;
+    border-radius: 8px;
+    transition: .3s;
+}
+
+.details-btn:hover {
+    background: #1d4ed8;
+}
+
+.course-details-page {
+    background: #f5f7fb;
+    min-height: 100vh;
+    padding: 40px;
+}
+
+.course-header {
+    background: white;
+    padding: 35px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, .08);
+    margin-bottom: 30px;
+}
+
+.course-header h1 {
+    text-align: center;
+    color: #1e3a8a;
+    margin-bottom: 20px;
+}
+
+.course-header h2 {
+    color: #333;
+    margin-top: 20px;
+}
+
+.course-description {
+    text-align: center;
+    color: #555;
+    margin-bottom: 30px;
+}
+
+.course-info {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.course-info p {
+    margin: 0;
+    font-size: 17px;
+    color: #444;
+}
+
+.module-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, .08);
+}
+
+.module-card h3 {
+    color: #1e3a8a;
+    margin-bottom: 15px;
+}
+
+.module-card ul {
+    padding-left: 20px;
+}
+
+.module-card li {
+    margin-bottom: 8px;
+}
+
+.enroll-btn {
+    display: block;
+    margin: 35px auto 0;
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 14px 35px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.enroll-btn:hover {
+    background: #1d4ed8;
+}

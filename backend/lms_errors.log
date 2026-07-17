@@ -1,0 +1,422 @@
+ERROR 2026-07-17 15:16:06,931 log 47348 22972 Internal Server Error: /api/accounts/register/
+Traceback (most recent call last):
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\urllib3\connection.py", line 204, in _new_conn
+    sock = connection.create_connection(
+        (self._dns_host, self.port),
+    ...<2 lines>...
+        socket_options=self.socket_options,
+    )
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\urllib3\util\connection.py", line 85, in create_connection
+    raise err
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\urllib3\util\connection.py", line 73, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\elastic_transport\_node\_http_urllib3.py", line 167, in perform_request
+    response = self.pool.urlopen(
+        method,
+    ...<4 lines>...
+        **kw,  # type: ignore[arg-type]
+    )
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\urllib3\connectionpool.py", line 842, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\urllib3\util\retry.py", line 473, in increment
+    raise reraise(type(error), error, _stacktrace)
+          ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\urllib3\util\util.py", line 39, in reraise
+    raise value
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\urllib3\connectionpool.py", line 788, in urlopen
+    response = self._make_request(
+        conn,
+    ...<10 lines>...
+        **response_kw,
+    )
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\urllib3\connectionpool.py", line 493, in _make_request
+    conn.request(
+    ~~~~~~~~~~~~^
+        method,
+        ^^^^^^^
+    ...<6 lines>...
+        enforce_content_length=enforce_content_length,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\urllib3\connection.py", line 500, in request
+    self.endheaders()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\http\client.py", line 1362, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\http\client.py", line 1122, in _send_output
+    self.send(msg)
+    ~~~~~~~~~^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\http\client.py", line 1066, in send
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\urllib3\connection.py", line 331, in connect
+    self.sock = self._new_conn()
+                ~~~~~~~~~~~~~~^^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\urllib3\connection.py", line 219, in _new_conn
+    raise NewConnectionError(
+        self, f"Failed to establish a new connection: {e}"
+    ) from e
+urllib3.exceptions.NewConnectionError: HTTPConnection(host='localhost', port=9200): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\django\views\generic\base.py", line 106, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\rest_framework\views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\rest_framework\views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\rest_framework\views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\rest_framework\views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\rest_framework\generics.py", line 194, in post
+    return self.create(request, *args, **kwargs)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\rest_framework\mixins.py", line 19, in create
+    self.perform_create(serializer)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\accounts\views.py", line 33, in perform_create
+    user = serializer.save()
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\rest_framework\serializers.py", line 210, in save
+    self.instance = self.create(validated_data)
+                    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\accounts\serializers.py", line 33, in create
+    user.save()
+    ~~~~~~~~~^^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\accounts\models.py", line 45, in save
+    super().save(*args, **kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\django\contrib\auth\base_user.py", line 62, in save
+    super().save(**kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\django\db\models\base.py", line 874, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\django\db\models\base.py", line 981, in save_base
+    post_save.send(
+    ~~~~~~~~~~~~~~^
+        sender=origin,
+        ^^^^^^^^^^^^^^
+    ...<4 lines>...
+        using=using,
+        ^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\django\dispatch\dispatcher.py", line 209, in send
+    response = receiver(signal=self, sender=sender, **named)
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\django_elasticsearch_dsl\signals.py", line 61, in handle_save
+    registry.update(instance)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\django_elasticsearch_dsl\registries.py", line 140, in update
+    doc().update(instance, **kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\django_elasticsearch_dsl\documents.py", line 259, in update
+    return self._bulk(
+           ~~~~~~~~~~^
+        self._get_actions(object_list, action),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        parallel=parallel,
+        ^^^^^^^^^^^^^^^^^^
+        **kwargs
+        ^^^^^^^^
+    )
+    ^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\django_elasticsearch_dsl\documents.py", line 236, in _bulk
+    return self.bulk(*args, **kwargs)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\django_elasticsearch_dsl\documents.py", line 179, in bulk
+    response = bulk(client=self._get_connection(), actions=actions, **kwargs)
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\elasticsearch\helpers\actions.py", line 605, in bulk
+    for ok, item in streaming_bulk(
+                    ~~~~~~~~~~~~~~^
+        client, actions, ignore_status=ignore_status, span_name="helpers.bulk", *args, **kwargs  # type: ignore[misc]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ):
+    ^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\elasticsearch\helpers\actions.py", line 518, in streaming_bulk
+    for data, (ok, info) in zip(
+                            ~~~^
+        bulk_data,
+        ^^^^^^^^^^
+    ...<10 lines>...
+        ),
+        ^^
+    ):
+    ^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\elasticsearch\helpers\actions.py", line 396, in _process_bulk_chunk
+    resp = client.bulk(*args, operations=bulk_actions, **kwargs)  # type: ignore[arg-type]
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\elasticsearch\_sync\client\utils.py", line 458, in wrapped
+    return api(*args, **kwargs)
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\elasticsearch\_sync\client\__init__.py", line 839, in bulk
+    return self.perform_request(  # type: ignore[return-value]
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "PUT",
+        ^^^^^^
+    ...<5 lines>...
+        path_parts=__path_parts,
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\elasticsearch\_sync\client\_base.py", line 271, in perform_request
+    response = self._perform_request(
+        method,
+    ...<4 lines>...
+        otel_span=otel_span,
+    )
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\elasticsearch\_sync\client\_base.py", line 315, in _perform_request
+    meta, resp_body = self.transport.perform_request(
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        method,
+        ^^^^^^^
+    ...<8 lines>...
+        otel_span=otel_span,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\elastic_transport\_transport.py", line 342, in perform_request
+    resp = node.perform_request(
+        method,
+    ...<3 lines>...
+        request_timeout=request_timeout,
+    )
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\elastic_transport\_node\_http_urllib3.py", line 202, in perform_request
+    raise err from e
+elastic_transport.ConnectionError: Connection error caused by: ConnectionError(Connection error caused by: NewConnectionError(HTTPConnection(host='localhost', port=9200): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it))
+ERROR 2026-07-17 15:16:24,178 log 47348 22972 Internal Server Error: /api/accounts/register/
+Traceback (most recent call last):
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\urllib3\connection.py", line 204, in _new_conn
+    sock = connection.create_connection(
+        (self._dns_host, self.port),
+    ...<2 lines>...
+        socket_options=self.socket_options,
+    )
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\urllib3\util\connection.py", line 85, in create_connection
+    raise err
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\urllib3\util\connection.py", line 73, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\elastic_transport\_node\_http_urllib3.py", line 167, in perform_request
+    response = self.pool.urlopen(
+        method,
+    ...<4 lines>...
+        **kw,  # type: ignore[arg-type]
+    )
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\urllib3\connectionpool.py", line 842, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\urllib3\util\retry.py", line 473, in increment
+    raise reraise(type(error), error, _stacktrace)
+          ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\urllib3\util\util.py", line 39, in reraise
+    raise value
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\urllib3\connectionpool.py", line 788, in urlopen
+    response = self._make_request(
+        conn,
+    ...<10 lines>...
+        **response_kw,
+    )
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\urllib3\connectionpool.py", line 493, in _make_request
+    conn.request(
+    ~~~~~~~~~~~~^
+        method,
+        ^^^^^^^
+    ...<6 lines>...
+        enforce_content_length=enforce_content_length,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\urllib3\connection.py", line 500, in request
+    self.endheaders()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\http\client.py", line 1362, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\http\client.py", line 1122, in _send_output
+    self.send(msg)
+    ~~~~~~~~~^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\http\client.py", line 1066, in send
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\urllib3\connection.py", line 331, in connect
+    self.sock = self._new_conn()
+                ~~~~~~~~~~~~~~^^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\urllib3\connection.py", line 219, in _new_conn
+    raise NewConnectionError(
+        self, f"Failed to establish a new connection: {e}"
+    ) from e
+urllib3.exceptions.NewConnectionError: HTTPConnection(host='localhost', port=9200): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\django\views\generic\base.py", line 106, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\rest_framework\views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\rest_framework\views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\rest_framework\views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\rest_framework\views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\rest_framework\generics.py", line 194, in post
+    return self.create(request, *args, **kwargs)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\rest_framework\mixins.py", line 19, in create
+    self.perform_create(serializer)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\accounts\views.py", line 33, in perform_create
+    user = serializer.save()
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\rest_framework\serializers.py", line 210, in save
+    self.instance = self.create(validated_data)
+                    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\accounts\serializers.py", line 33, in create
+    user.save()
+    ~~~~~~~~~^^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\accounts\models.py", line 45, in save
+    super().save(*args, **kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\django\contrib\auth\base_user.py", line 62, in save
+    super().save(**kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\django\db\models\base.py", line 874, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\django\db\models\base.py", line 981, in save_base
+    post_save.send(
+    ~~~~~~~~~~~~~~^
+        sender=origin,
+        ^^^^^^^^^^^^^^
+    ...<4 lines>...
+        using=using,
+        ^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\django\dispatch\dispatcher.py", line 209, in send
+    response = receiver(signal=self, sender=sender, **named)
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\django_elasticsearch_dsl\signals.py", line 61, in handle_save
+    registry.update(instance)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\django_elasticsearch_dsl\registries.py", line 140, in update
+    doc().update(instance, **kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\django_elasticsearch_dsl\documents.py", line 259, in update
+    return self._bulk(
+           ~~~~~~~~~~^
+        self._get_actions(object_list, action),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        parallel=parallel,
+        ^^^^^^^^^^^^^^^^^^
+        **kwargs
+        ^^^^^^^^
+    )
+    ^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\django_elasticsearch_dsl\documents.py", line 236, in _bulk
+    return self.bulk(*args, **kwargs)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\django_elasticsearch_dsl\documents.py", line 179, in bulk
+    response = bulk(client=self._get_connection(), actions=actions, **kwargs)
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\elasticsearch\helpers\actions.py", line 605, in bulk
+    for ok, item in streaming_bulk(
+                    ~~~~~~~~~~~~~~^
+        client, actions, ignore_status=ignore_status, span_name="helpers.bulk", *args, **kwargs  # type: ignore[misc]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ):
+    ^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\elasticsearch\helpers\actions.py", line 518, in streaming_bulk
+    for data, (ok, info) in zip(
+                            ~~~^
+        bulk_data,
+        ^^^^^^^^^^
+    ...<10 lines>...
+        ),
+        ^^
+    ):
+    ^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\elasticsearch\helpers\actions.py", line 396, in _process_bulk_chunk
+    resp = client.bulk(*args, operations=bulk_actions, **kwargs)  # type: ignore[arg-type]
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\elasticsearch\_sync\client\utils.py", line 458, in wrapped
+    return api(*args, **kwargs)
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\elasticsearch\_sync\client\__init__.py", line 839, in bulk
+    return self.perform_request(  # type: ignore[return-value]
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "PUT",
+        ^^^^^^
+    ...<5 lines>...
+        path_parts=__path_parts,
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\elasticsearch\_sync\client\_base.py", line 271, in perform_request
+    response = self._perform_request(
+        method,
+    ...<4 lines>...
+        otel_span=otel_span,
+    )
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\elasticsearch\_sync\client\_base.py", line 315, in _perform_request
+    meta, resp_body = self.transport.perform_request(
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        method,
+        ^^^^^^^
+    ...<8 lines>...
+        otel_span=otel_span,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\elastic_transport\_transport.py", line 342, in perform_request
+    resp = node.perform_request(
+        method,
+    ...<3 lines>...
+        request_timeout=request_timeout,
+    )
+  File "C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\.venv\Lib\site-packages\elastic_transport\_node\_http_urllib3.py", line 202, in perform_request
+    raise err from e
+elastic_transport.ConnectionError: Connection error caused by: ConnectionError(Connection error caused by: NewConnectionError(HTTPConnection(host='localhost', port=9200): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it))

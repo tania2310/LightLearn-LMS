@@ -49,6 +49,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if not user.is_authenticated:
             user = await database_sync_to_async(User.objects.first)()   
 
+        # Lock check: restrict students if chat room is locked
+        is_locked = await self.is_room_locked()
+        if is_locked:
+            is_admin = user.role == "admin" or user.is_staff
+            is_mentor = await self.is_course_mentor(user)
+            if not (is_admin or is_mentor):
+                await self.send(text_data=json.dumps({
+                    "error": "This chat room has been locked by a mentor."
+                }))
+                return
+
         await self.save_message(user, message, parent_id)
 
         await self.channel_layer.group_send(
@@ -94,7 +105,38 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if user.is_staff:
             return True
 
-        return Enrollment.objects.filter(
+        # Check enrollment exists
+        enrolled = Enrollment.objects.filter(
             student=user,
             course_id=self.course_id
         ).exists()
+        if not enrolled:
+            return False
+
+        # Check if there is an approved refund
+        from payments.models import RefundRequest
+        has_refund = RefundRequest.objects.filter(
+            student=user,
+            enrollment__course_id=self.course_id,
+            status="Approved"
+        ).exists()
+        if has_refund:
+            return False
+
+        return True
+
+    @database_sync_to_async
+    def is_room_locked(self):
+        try:
+            room = ChatRoom.objects.get(course_id=self.course_id)
+            return room.is_locked
+        except ChatRoom.DoesNotExist:
+            return False
+
+    @database_sync_to_async
+    def is_course_mentor(self, user):
+        try:
+            room = ChatRoom.objects.get(course_id=self.course_id)
+            return room.course.mentor == user
+        except ChatRoom.DoesNotExist:
+            return False

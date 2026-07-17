@@ -67,8 +67,25 @@ class Course(models.Model):
     
     @property
     def average_rating(self):
-        avg = self.reviews.aggregate(avg=Avg("rating"))["avg"]
-        return round(avg, 1) if avg else 0
+        active_reviews = self.reviews.filter(is_hidden=False)
+        v = active_reviews.count()
+        if v == 0:
+            return 0
+        avg = active_reviews.aggregate(avg=Avg("rating"))["avg"]
+        R = avg if avg else 0
+        
+        m = 2 # Minimum review threshold
+        
+        # Calculate platform-wide average rating for all courses, excluding hidden reviews
+        all_reviews = Review.objects.filter(is_hidden=False)
+        platform_avg = all_reviews.aggregate(avg=Avg("rating"))["avg"]
+        C = platform_avg if platform_avg else 0
+        
+        if v >= m:
+            weighted = (v / (v + m)) * R + (m / (v + m)) * C
+            return round(weighted, 1)
+        
+        return round(R, 1)
 
 
 class Module(models.Model):
@@ -118,37 +135,38 @@ class Lesson(models.Model):
         return self.title
 
 class Enrollment(models.Model):
+
     STATUS_CHOICES = [
-    ("pending", "Pending"),
-    ("approved", "Approved"),
-    ("rejected", "Rejected"),
+        ("pending", "Pending"),
+        ("approved", "Approved"),
+        ("rejected", "Rejected"),
     ]
+
+    student = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="enrollments",
+    )
+
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name="enrollments",
+    )
 
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
         default="pending",
     )
-    student = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="enrollments"
-    )
 
-    course = models.ForeignKey(
-        Course,
-        on_delete=models.CASCADE,
-        related_name="enrollments"
-    )
-    
-
-    enrolled_at = models.DateTimeField(default=timezone.now)
+    enrolled_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         unique_together = ("student", "course")
 
     def __str__(self):
-        return f"{self.student.username} -> {self.course.title}"
+        return f"{self.student.username} - {self.course.title}"
 
 class Progress(models.Model):
     student = models.ForeignKey(
@@ -227,12 +245,65 @@ class Review(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     approved = models.BooleanField(default=True)
+    is_hidden = models.BooleanField(default=False)
+    hidden_at = models.DateTimeField(null=True, blank=True)
+    hidden_by = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="hidden_reviews"
+    )
 
     class Meta:
         unique_together = ("student", "course")
 
     def __str__(self):
         return f"{self.student.email} - {self.course.title}"
+
+class ReviewReport(models.Model):
+    REASON_CHOICES = [
+        ("Spam", "Spam"),
+        ("Offensive", "Offensive"),
+        ("Harassment", "Harassment"),
+        ("Fake Review", "Fake Review"),
+        ("Other", "Other"),
+    ]
+
+    STATUS_CHOICES = [
+        ("Pending", "Pending"),
+        ("Reviewed", "Reviewed"),
+        ("Dismissed", "Dismissed"),
+    ]
+
+    review = models.ForeignKey(
+        Review,
+        on_delete=models.CASCADE,
+        related_name="reports"
+    )
+    reported_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="review_reports"
+    )
+    reason = models.CharField(
+        max_length=50,
+        choices=REASON_CHOICES
+    )
+    description = models.TextField(blank=True)
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="Pending"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ("reported_by", "review")
+
+    def __str__(self):
+        return f"Report on {self.review} by {self.reported_by.username}"
 
 class Certificate(models.Model):
     student = models.ForeignKey(

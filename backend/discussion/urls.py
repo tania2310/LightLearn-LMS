@@ -6,6 +6,8 @@ from .views import (
     ChatMessageViewSet,
     DeleteMessageView,
     ChatHistoryView,
+    LockRoomView,
+    UnlockRoomView,
 )
 
 router = DefaultRouter()
@@ -22,5 +24,15 @@ urlpatterns = router.urls + [
         "chatrooms/<int:room_id>/history/",
         ChatHistoryView.as_view(),
         name="chat-history",
+    ),
+    path(
+        "chatrooms/<int:room_id>/lock/",
+        LockRoomView.as_view(),
+        name="lock-room",
+    ),
+    path(
+        "chatrooms/<int:room_id>/unlock/",
+        UnlockRoomView.as_view(),
+        name="unlock-room",
     ),
 ]

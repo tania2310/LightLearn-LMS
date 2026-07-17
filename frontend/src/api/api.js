@@ -1,7 +1,11 @@
 import axios from "axios";
 
+const getBaseURL = () => {
+    return import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api/";
+};
+
 const API = axios.create({
-    baseURL: "http://127.0.0.1:8000/api/",
+    baseURL: getBaseURL(),
 });
 
 API.interceptors.request.use(
@@ -16,7 +20,7 @@ API.interceptors.request.use(
 
                 if (Date.now() >= expiry && refresh) {
                     const response = await axios.post(
-                        "http://127.0.0.1:8000/api/accounts/refresh/",
+                        `${getBaseURL()}accounts/refresh/`,
                         {
                             refresh,
                         }
@@ -41,5 +45,14 @@ API.interceptors.request.use(
     },
     (error) => Promise.reject(error)
 );
+
+export const getNotifications = () => API.get("notifications/");
+export const getUnreadNotifications = () => API.get("notifications/unread/");
+export const markRead = (id) => API.post(`notifications/${id}/mark-read/`);
+export const markAllRead = () => API.post("notifications/mark-all-read/");
+
+export const searchCourses = (params) => API.get("search/courses/", { params });
+export const searchMentors = (params) => API.get("search/mentors/", { params });
+export const autocomplete = (q) => API.get("search/autocomplete/", { params: { q } });
 
 export default API;

@@ -10,6 +10,7 @@ from .models import (
     Question,
     Review,
     Certificate,
+    ReviewReport,
 )
 
 
@@ -31,18 +32,39 @@ class CourseSerializer(serializers.ModelSerializer):
     modules = ModuleSerializer(many=True, read_only=True)
     average_rating = serializers.ReadOnlyField()
     mentor = serializers.StringRelatedField(read_only=True)
+    thumbnail = serializers.SerializerMethodField()
+    enrolled_count = serializers.SerializerMethodField()
+
+    def get_thumbnail(self, obj):
+        request = self.context.get("request")
+        if obj.thumbnail:
+            return request.build_absolute_uri(obj.thumbnail.url)
+        return None
+
+    def get_enrolled_count(self, obj):
+        return obj.enrollments.filter(status="approved").count()
 
     class Meta:
         model = Course
         fields = "__all__"
         read_only_fields = ["mentor"]
-        
+
 class EnrollmentSerializer(serializers.ModelSerializer):
+    course_title = serializers.CharField(
+        source="course.title",
+        read_only=True
+    )
+
+    mentor = serializers.CharField(
+        source="course.mentor.username",
+        read_only=True
+    )
+
     class Meta:
         model = Enrollment
         fields = "__all__"
         read_only_fields = ["student"]
-
+        
 class ProgressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Progress
@@ -78,3 +100,14 @@ class QuizSubmissionSerializer(serializers.Serializer):
     answers = serializers.DictField(
         child=serializers.IntegerField()
     )
+
+class ReviewReportSerializer(serializers.ModelSerializer):
+    reported_by_username = serializers.ReadOnlyField(source='reported_by.username')
+    review_comment = serializers.ReadOnlyField(source='review.comment')
+    course_title = serializers.ReadOnlyField(source='review.course.title')
+    student_email = serializers.ReadOnlyField(source='review.student.email')
+
+    class Meta:
+        model = ReviewReport
+        fields = "__all__"
+        read_only_fields = ["reported_by", "created_at", "reviewed_at", "status"]

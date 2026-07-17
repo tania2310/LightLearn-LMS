@@ -7,11 +7,29 @@ function Login() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [portal, setPortal] = useState("student");
+    const [errors, setErrors] = useState({});
+    const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
+
+        let newErrors = {};
+
+        if (!username.trim())
+            newErrors.username = "Username is required.";
+
+        if (!password.trim())
+            newErrors.password = "Password is required.";
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
+
+        setErrors({});
+        setLoading(true);
 
         try {
             const response = await API.post("accounts/login/", {
@@ -22,7 +40,9 @@ function Login() {
             const role = response.data.user.role;
 
             if (role !== portal) {
-                alert(`This account belongs to the ${role} portal.`);
+                setErrors({
+                    general: `This account belongs to the ${role} portal.`,
+                });
                 return;
             }
 
@@ -45,14 +65,38 @@ function Login() {
                     break;
 
                 default:
-                    alert("Unknown user role.");
+                    setErrors({
+                        general: "Unknown user role.",
+                    });
             }
+
         } catch (error) {
-            console.error(error);
-            alert("Invalid Credentials");
+
+            if (error.response?.data) {
+
+                if (error.response.data.detail) {
+
+                    setErrors({
+                        general: error.response.data.detail,
+                    });
+
+                } else {
+
+                    setErrors(error.response.data);
+
+                }
+
+            } else {
+
+                setErrors({
+                    general: "Unable to connect to the server.",
+                });
+
+            }
+        } finally {
+            setLoading(false);
         }
     };
-
     return (
         <div className="login-page">
 
@@ -96,6 +140,9 @@ function Login() {
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                     />
+                    {errors.username && (
+                        <p className="error">{errors.username}</p>
+                    )}
 
                     <input
                         type="password"
@@ -103,10 +150,27 @@ function Login() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                     />
+                    {errors.password && (
+                        <p className="error">{errors.password}</p>
+                    )}
+                     {errors.general && (
+                        <div className="error-alert-banner">{errors.general}</div>
+                     )}
 
-                    <button type="submit">
-                        Login
-                    </button>
+                     <button type="submit" disabled={loading} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", width: "100%" }}>
+                         {loading ? <span className="spinner-loader" style={{ width: "16px", height: "16px", borderWidth: "2px" }} /> : "Login"}
+                     </button>
+                    <p
+                        style={{
+                            cursor: "pointer",
+                            color: "blue",
+                            marginTop: "10px"
+                        }}
+                        onClick={() => navigate("/forgot-password")}
+                    >
+                        Forgot Password?
+                    </p>
+
 
                 </form>
 

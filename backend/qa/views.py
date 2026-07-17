@@ -20,4 +20,9 @@ class AnswerViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save(mentor=self.request.user)
+        answer = serializer.save(mentor=self.request.user)
+        try:
+            from notifications.services import send_qa_answered_notification
+            send_qa_answered_notification(answer.question)
+        except Exception as e:
+            pass

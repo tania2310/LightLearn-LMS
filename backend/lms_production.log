@@ -1,0 +1,139 @@
+INFO 2026-07-17 14:22:59,869 autoreload 51984 41568 Watching for file changes with StatReloader
+INFO 2026-07-17 14:23:17,681 autoreload 51984 41568 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\payments\views.py changed, reloading.
+INFO 2026-07-17 14:23:19,598 autoreload 1948 25928 Watching for file changes with StatReloader
+INFO 2026-07-17 14:23:25,414 autoreload 1948 25928 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\payments\views.py changed, reloading.
+INFO 2026-07-17 14:23:27,422 autoreload 28828 7000 Watching for file changes with StatReloader
+INFO 2026-07-17 14:23:37,219 autoreload 28828 7000 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\payments\views.py changed, reloading.
+INFO 2026-07-17 14:23:39,099 autoreload 15172 47776 Watching for file changes with StatReloader
+INFO 2026-07-17 14:23:46,346 autoreload 15172 47776 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\payments\views.py changed, reloading.
+INFO 2026-07-17 14:23:48,369 autoreload 15744 8536 Watching for file changes with StatReloader
+INFO 2026-07-17 14:32:48,142 views 36692 48124 Successful login for user: student_login
+INFO 2026-07-17 14:33:12,331 views 36692 48124 Admin initiated refund for payment 1 via provider Stripe
+INFO 2026-07-17 14:33:12,331 views 36692 48124 Stripe refund API call succeeded for payment intent ch_mock_intent_123
+INFO 2026-07-17 14:33:12,344 views 36692 48124 Refund successfully completed for payment 1. Enrollment access revoked.
+INFO 2026-07-17 14:34:28,742 views 48620 29776 Successful login for user: student_login
+INFO 2026-07-17 14:34:50,071 views 48620 29776 Stripe checkout session created: sess_mock_123 for enrollment 5
+INFO 2026-07-17 14:34:52,525 views 48620 29776 Admin initiated refund for payment 3 via provider Stripe
+INFO 2026-07-17 14:34:52,525 views 48620 29776 Stripe refund API call succeeded for payment intent ch_mock_intent_123
+INFO 2026-07-17 14:34:52,539 views 48620 29776 Refund successfully completed for payment 3. Enrollment access revoked.
+INFO 2026-07-17 14:38:16,951 autoreload 15744 8536 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\payments\models.py changed, reloading.
+INFO 2026-07-17 14:38:18,329 autoreload 41292 52408 Watching for file changes with StatReloader
+INFO 2026-07-17 14:38:23,575 autoreload 41292 52408 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\payments\models.py changed, reloading.
+INFO 2026-07-17 14:38:24,858 autoreload 52992 32524 Watching for file changes with StatReloader
+INFO 2026-07-17 14:39:02,501 autoreload 52992 32524 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\payments\views.py changed, reloading.
+INFO 2026-07-17 14:39:03,746 autoreload 15588 24280 Watching for file changes with StatReloader
+INFO 2026-07-17 14:39:11,306 autoreload 15588 24280 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\payments\views.py changed, reloading.
+INFO 2026-07-17 14:39:12,447 autoreload 31840 5232 Watching for file changes with StatReloader
+INFO 2026-07-17 14:40:24,125 views 33660 23376 Successful login for user: student_login
+INFO 2026-07-17 14:40:44,014 views 33660 23376 Stripe Webhook received event: charge.dispute.created
+INFO 2026-07-17 14:40:44,027 views 33660 23376 Stripe dispute created: dp_stripe_123 for payment 1. Entitlement revoked.
+INFO 2026-07-17 14:40:45,720 views 33660 23376 Stripe Webhook received event: charge.dispute.closed
+INFO 2026-07-17 14:40:45,725 views 33660 23376 Stripe dispute resolved (won): dp_stripe_123 for payment 2. Entitlement restored.
+INFO 2026-07-17 14:40:48,915 views 33660 23376 Stripe checkout session created: sess_mock_123 for enrollment 7
+INFO 2026-07-17 14:40:51,393 views 33660 23376 Admin initiated refund for payment 5 via provider Stripe
+INFO 2026-07-17 14:40:51,393 views 33660 23376 Stripe refund API call succeeded for payment intent ch_mock_intent_123
+INFO 2026-07-17 14:40:51,406 views 33660 23376 Refund successfully completed for payment 5. Enrollment access revoked.
+INFO 2026-07-17 14:49:49,336 autoreload 31840 5232 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\courses\models.py changed, reloading.
+INFO 2026-07-17 14:49:51,191 autoreload 37168 43804 Watching for file changes with StatReloader
+INFO 2026-07-17 14:49:57,813 autoreload 37168 43804 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\courses\models.py changed, reloading.
+INFO 2026-07-17 14:49:59,026 autoreload 53776 29524 Watching for file changes with StatReloader
+INFO 2026-07-17 14:50:28,916 autoreload 53776 29524 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\courses\serializers.py changed, reloading.
+INFO 2026-07-17 14:50:30,043 autoreload 31428 29928 Watching for file changes with StatReloader
+INFO 2026-07-17 14:50:39,847 autoreload 31428 29928 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\courses\serializers.py changed, reloading.
+INFO 2026-07-17 14:50:40,997 autoreload 33996 41692 Watching for file changes with StatReloader
+INFO 2026-07-17 14:50:50,688 autoreload 33996 41692 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\courses\permissions.py changed, reloading.
+INFO 2026-07-17 14:50:51,835 autoreload 46824 9316 Watching for file changes with StatReloader
+INFO 2026-07-17 14:51:01,688 autoreload 46824 9316 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\courses\views.py changed, reloading.
+INFO 2026-07-17 14:51:02,889 autoreload 49748 42308 Watching for file changes with StatReloader
+INFO 2026-07-17 14:51:08,267 autoreload 49748 42308 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\courses\views.py changed, reloading.
+INFO 2026-07-17 14:51:09,476 autoreload 48896 15020 Watching for file changes with StatReloader
+INFO 2026-07-17 14:51:16,967 autoreload 48896 15020 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\courses\urls.py changed, reloading.
+INFO 2026-07-17 14:51:18,089 autoreload 38072 16648 Watching for file changes with StatReloader
+INFO 2026-07-17 14:51:25,680 autoreload 38072 16648 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\courses\urls.py changed, reloading.
+INFO 2026-07-17 14:51:26,826 autoreload 50672 39548 Watching for file changes with StatReloader
+INFO 2026-07-17 14:54:29,035 views 26152 14316 Successful login for user: student_login
+INFO 2026-07-17 14:54:49,122 views 26152 14316 Stripe Webhook received event: charge.dispute.created
+INFO 2026-07-17 14:54:49,135 views 26152 14316 Stripe dispute created: dp_stripe_123 for payment 1. Entitlement revoked.
+INFO 2026-07-17 14:54:50,687 views 26152 14316 Stripe Webhook received event: charge.dispute.closed
+INFO 2026-07-17 14:54:50,693 views 26152 14316 Stripe dispute resolved (won): dp_stripe_123 for payment 2. Entitlement restored.
+INFO 2026-07-17 14:54:53,897 views 26152 14316 Stripe checkout session created: sess_mock_123 for enrollment 7
+INFO 2026-07-17 14:54:56,638 views 26152 14316 Admin initiated refund for payment 5 via provider Stripe
+INFO 2026-07-17 14:54:56,639 views 26152 14316 Stripe refund API call succeeded for payment intent ch_mock_intent_123
+INFO 2026-07-17 14:54:56,653 views 26152 14316 Refund successfully completed for payment 5. Enrollment access revoked.
+INFO 2026-07-17 14:59:11,356 autoreload 50672 39548 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\notifications\models.py changed, reloading.
+INFO 2026-07-17 14:59:13,079 autoreload 31276 34072 Watching for file changes with StatReloader
+INFO 2026-07-17 14:59:56,682 autoreload 31276 34072 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\config\asgi.py changed, reloading.
+INFO 2026-07-17 14:59:57,948 autoreload 25828 44652 Watching for file changes with StatReloader
+INFO 2026-07-17 15:00:21,029 autoreload 25828 44652 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\config\urls.py changed, reloading.
+INFO 2026-07-17 15:00:22,220 autoreload 31196 31240 Watching for file changes with StatReloader
+INFO 2026-07-17 15:00:47,805 autoreload 31196 31240 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\qa\views.py changed, reloading.
+INFO 2026-07-17 15:00:48,953 autoreload 39572 24632 Watching for file changes with StatReloader
+INFO 2026-07-17 15:00:56,634 autoreload 39572 24632 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\courses\views.py changed, reloading.
+INFO 2026-07-17 15:00:57,785 autoreload 1340 41604 Watching for file changes with StatReloader
+INFO 2026-07-17 15:01:05,287 autoreload 1340 41604 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\courses\views.py changed, reloading.
+INFO 2026-07-17 15:01:06,662 autoreload 11816 50740 Watching for file changes with StatReloader
+INFO 2026-07-17 15:01:18,845 autoreload 11816 50740 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\courses\views.py changed, reloading.
+INFO 2026-07-17 15:01:20,023 autoreload 29668 9556 Watching for file changes with StatReloader
+INFO 2026-07-17 15:01:28,740 autoreload 29668 9556 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\payments\views.py changed, reloading.
+INFO 2026-07-17 15:01:30,080 autoreload 20168 24836 Watching for file changes with StatReloader
+INFO 2026-07-17 15:01:39,763 autoreload 20168 24836 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\payments\views.py changed, reloading.
+INFO 2026-07-17 15:01:41,088 autoreload 764 42328 Watching for file changes with StatReloader
+INFO 2026-07-17 15:01:51,921 autoreload 764 42328 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\payments\views.py changed, reloading.
+INFO 2026-07-17 15:01:53,114 autoreload 43764 10836 Watching for file changes with StatReloader
+INFO 2026-07-17 15:02:11,964 autoreload 43764 10836 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\payments\views.py changed, reloading.
+INFO 2026-07-17 15:02:13,150 autoreload 22932 27412 Watching for file changes with StatReloader
+INFO 2026-07-17 15:02:36,370 autoreload 22932 27412 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\payments\views.py changed, reloading.
+INFO 2026-07-17 15:02:37,516 autoreload 5640 23872 Watching for file changes with StatReloader
+INFO 2026-07-17 15:02:41,774 autoreload 5640 23872 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\payments\views.py changed, reloading.
+INFO 2026-07-17 15:02:43,090 autoreload 36828 15584 Watching for file changes with StatReloader
+INFO 2026-07-17 15:03:01,859 autoreload 36828 15584 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\courses\views.py changed, reloading.
+INFO 2026-07-17 15:03:03,094 autoreload 33500 34516 Watching for file changes with StatReloader
+INFO 2026-07-17 15:03:47,740 autoreload 33500 34516 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\notifications\consumers.py changed, reloading.
+INFO 2026-07-17 15:03:48,971 autoreload 27972 10456 Watching for file changes with StatReloader
+INFO 2026-07-17 15:05:38,115 views 38676 38380 Successful login for user: student_login
+INFO 2026-07-17 15:05:58,526 views 38676 38380 Stripe Webhook received event: charge.dispute.created
+INFO 2026-07-17 15:05:58,541 views 38676 38380 Stripe dispute created: dp_stripe_123 for payment 1. Entitlement revoked.
+INFO 2026-07-17 15:06:00,081 views 38676 38380 Stripe Webhook received event: charge.dispute.closed
+INFO 2026-07-17 15:06:00,086 views 38676 38380 Stripe dispute resolved (won): dp_stripe_123 for payment 2. Entitlement restored.
+INFO 2026-07-17 15:06:03,501 views 38676 38380 Stripe checkout session created: sess_mock_123 for enrollment 7
+INFO 2026-07-17 15:06:06,298 views 38676 38380 Admin initiated refund for payment 5 via provider Stripe
+INFO 2026-07-17 15:06:06,298 views 38676 38380 Stripe refund API call succeeded for payment intent ch_mock_intent_123
+INFO 2026-07-17 15:06:09,396 views 38676 38380 Refund successfully completed for payment 5. Enrollment access revoked.
+INFO 2026-07-17 15:06:59,911 views 51108 25644 Successful login for user: student_login
+INFO 2026-07-17 15:07:38,275 views 51108 25644 Stripe Webhook received event: charge.dispute.created
+INFO 2026-07-17 15:07:38,290 views 51108 25644 Stripe dispute created: dp_stripe_123 for payment 1. Entitlement revoked.
+INFO 2026-07-17 15:07:40,164 views 51108 25644 Stripe Webhook received event: charge.dispute.closed
+INFO 2026-07-17 15:07:40,169 views 51108 25644 Stripe dispute resolved (won): dp_stripe_123 for payment 2. Entitlement restored.
+INFO 2026-07-17 15:07:45,115 views 51108 25644 Stripe checkout session created: sess_mock_123 for enrollment 7
+INFO 2026-07-17 15:07:48,053 views 51108 25644 Admin initiated refund for payment 5 via provider Stripe
+INFO 2026-07-17 15:07:48,053 views 51108 25644 Stripe refund API call succeeded for payment intent ch_mock_intent_123
+INFO 2026-07-17 15:07:50,195 views 51108 25644 Refund successfully completed for payment 5. Enrollment access revoked.
+INFO 2026-07-17 15:08:40,851 views 36900 30372 Successful login for user: student_login
+INFO 2026-07-17 15:09:14,918 views 36900 30372 Stripe Webhook received event: charge.dispute.created
+INFO 2026-07-17 15:09:14,934 views 36900 30372 Stripe dispute created: dp_stripe_123 for payment 1. Entitlement revoked.
+INFO 2026-07-17 15:09:16,972 views 36900 30372 Stripe Webhook received event: charge.dispute.closed
+INFO 2026-07-17 15:09:16,977 views 36900 30372 Stripe dispute resolved (won): dp_stripe_123 for payment 2. Entitlement restored.
+INFO 2026-07-17 15:09:20,715 views 36900 30372 Stripe checkout session created: sess_mock_123 for enrollment 15
+INFO 2026-07-17 15:09:23,223 views 36900 30372 Admin initiated refund for payment 5 via provider Stripe
+INFO 2026-07-17 15:09:23,223 views 36900 30372 Stripe refund API call succeeded for payment intent ch_mock_intent_123
+INFO 2026-07-17 15:09:25,366 views 36900 30372 Refund successfully completed for payment 5. Enrollment access revoked.
+INFO 2026-07-17 15:10:48,244 autoreload 27972 10456 C:\Users\Tania Nirmal\OneDrive\Documents\LightLearn-LMS\backend\config\settings.py changed, reloading.
+INFO 2026-07-17 15:27:28,904 views 3948 23968 Successful login for user: student_login
+INFO 2026-07-17 15:28:18,797 views 3948 23968 Stripe Webhook received event: charge.dispute.created
+INFO 2026-07-17 15:28:18,812 views 3948 23968 Stripe dispute created: dp_stripe_123 for payment 1. Entitlement revoked.
+INFO 2026-07-17 15:28:20,351 views 3948 23968 Stripe Webhook received event: charge.dispute.closed
+INFO 2026-07-17 15:28:20,356 views 3948 23968 Stripe dispute resolved (won): dp_stripe_123 for payment 2. Entitlement restored.
+INFO 2026-07-17 15:28:23,643 views 3948 23968 Stripe checkout session created: sess_mock_123 for enrollment 15
+INFO 2026-07-17 15:28:26,235 views 3948 23968 Admin initiated refund for payment 5 via provider Stripe
+INFO 2026-07-17 15:28:26,235 views 3948 23968 Stripe refund API call succeeded for payment intent ch_mock_intent_123
+INFO 2026-07-17 15:28:28,419 views 3948 23968 Refund successfully completed for payment 5. Enrollment access revoked.
+INFO 2026-07-17 15:30:01,549 views 30564 11396 Successful login for user: student_login
+INFO 2026-07-17 15:30:53,084 views 30564 11396 Stripe Webhook received event: charge.dispute.created
+INFO 2026-07-17 15:30:53,103 views 30564 11396 Stripe dispute created: dp_stripe_123 for payment 1. Entitlement revoked.
+INFO 2026-07-17 15:30:55,273 views 30564 11396 Stripe Webhook received event: charge.dispute.closed
+INFO 2026-07-17 15:30:55,280 views 30564 11396 Stripe dispute resolved (won): dp_stripe_123 for payment 2. Entitlement restored.
+INFO 2026-07-17 15:30:58,977 views 30564 11396 Stripe checkout session created: sess_mock_123 for enrollment 15
+INFO 2026-07-17 15:31:01,404 views 30564 11396 Admin initiated refund for payment 5 via provider Stripe
+INFO 2026-07-17 15:31:01,404 views 30564 11396 Stripe refund API call succeeded for payment intent ch_mock_intent_123
+INFO 2026-07-17 15:31:03,544 views 30564 11396 Refund successfully completed for payment 5. Enrollment access revoked.
+INFO 2026-07-17 15:36:21,396 autoreload 4760 20780 Watching for file changes with StatReloader

@@ -2,10 +2,15 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import API from "../api/api";
 import Navbar from "../components/Navbar";
+import CourseModules from "./CourseModules";
 
 function Modules() {
     const { id } = useParams();
     const role = localStorage.getItem("role");
+
+    if (role === "student") {
+        return <CourseModules />;
+    }
 
     const [modules, setModules] = useState([]);
 

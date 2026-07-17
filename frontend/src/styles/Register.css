@@ -46,3 +46,11 @@
 .register-card button:hover {
     background: #1d4ed8;
 }
+
+.error {
+    color: #dc3545;
+    font-size: 13px;
+    margin-top: 5px;
+    margin-bottom: 12px;
+    text-align: left;
+}

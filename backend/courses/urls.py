@@ -8,11 +8,13 @@ from .views import (
     QuizViewSet,
     QuestionViewSet,
     ReviewViewSet,
+    ReviewReportViewSet,
     CertificateView,
     CertificateViewSet,
     AdminStatsView,
     pending_enrollments,
     approve_enrollment,
+    AdminReportView,
 )
 from django.urls import path
 
@@ -21,10 +23,15 @@ router = DefaultRouter()
 router.register(r"courses", CourseViewSet)
 router.register(r"modules", ModuleViewSet)
 router.register(r"lessons", LessonViewSet)
-router.register(r"enrollments", EnrollmentViewSet)
+router.register(
+    r"enrollments",
+    EnrollmentViewSet,
+    basename="enrollment",
+)
 router.register(r"progress", ProgressViewSet)
 router.register(r"quizzes", QuizViewSet)
 router.register(r"questions", QuestionViewSet)
+router.register(r"reviews/reports", ReviewReportViewSet, basename="reviewreport")
 router.register(r"reviews", ReviewViewSet)
 router.register(r"certificates", CertificateViewSet)
 
@@ -35,14 +42,21 @@ urlpatterns += [
         CertificateView.as_view(),
         name="certificate",
     ),
+    path(
+        "admin/stats/",
+        AdminStatsView.as_view(),
+    ),
+    path(
+        "admin/reports/",
+        AdminReportView.as_view(),
+        name="admin-reports",
+    ),
+    path(
+        "enrollments/pending/",
+        pending_enrollments,
+    ),
+    path(
+        "enrollments/approve/<int:enrollment_id>/",
+        approve_enrollment,
+    ),
 ]
-path("admin/stats/", AdminStatsView.as_view()),
-path(
-    "enrollments/pending/",
-    pending_enrollments,
-),
-
-path(
-    "enrollments/approve/<int:enrollment_id>/",
-    approve_enrollment,
-),

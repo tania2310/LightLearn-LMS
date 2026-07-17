@@ -30,3 +30,9 @@ class IsAdmin(BasePermission):
             request.user.is_authenticated
             and request.user.role == "admin"
         )
+
+class IsReviewOwnerOrReadOnly(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.method in ["GET", "HEAD", "OPTIONS"]:
+            return True
+        return obj.student == request.user or request.user.role == "admin"

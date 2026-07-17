@@ -9,6 +9,9 @@ urlpatterns = [
     path("api/", include("courses.urls")),
     path("api/", include("qa.urls")),
     path("api/discussion/", include("discussion.urls")),
+    path("api/", include("payments.urls")),
+    path("api/", include("notifications.urls")),
+    path("api/search/", include("search.urls")),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

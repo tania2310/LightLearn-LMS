@@ -1,0 +1,192 @@
+/* global.css overrides */
+
+/* Core Theme Enhancements */
+:root {
+  --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+}
+
+/* Animations & Transitions */
+button, 
+a, 
+input, 
+select, 
+textarea, 
+.card, 
+.course-card, 
+.module-card, 
+.lesson-item {
+  transition: var(--transition);
+}
+
+/* Interactive Elements Interactions */
+button:hover,
+.btn-primary-flow:hover,
+.btn-secondary:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+button:active,
+.btn-primary-flow:active,
+.btn-secondary:active {
+  transform: translateY(1px);
+}
+
+.card:hover, 
+.course-card:hover, 
+.module-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Accessibility Focus States */
+button:focus-visible,
+a:focus-visible,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Form Controls Polish */
+input, 
+select, 
+textarea {
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  background: var(--bg);
+  color: var(--text-h);
+  box-sizing: border-box;
+}
+
+input:focus, 
+select:focus, 
+textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+/* Table Responsive Adaptations */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+tr:hover td {
+  background: var(--accent-bg);
+}
+
+/* Skeleton Loading Shimmer */
+.skeleton {
+  background: linear-gradient(90deg, var(--code-bg) 25%, var(--border) 50%, var(--code-bg) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+  color: transparent !important;
+  pointer-events: none;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* General Layout Responsive Adaptations */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 28px !important;
+    margin: 20px 0 !important;
+  }
+  
+  h2 {
+    font-size: 20px !important;
+  }
+
+  .stats, 
+  .reports-grid {
+    grid-template-columns: 1fr !important;
+    gap: 15px !important;
+  }
+
+  .course-card {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 15px !important;
+  }
+
+  .course-card img {
+    width: 100% !important;
+    height: 180px !important;
+    margin-bottom: 15px !important;
+  }
+  
+  .reviews-summary {
+    flex-direction: column !important;
+    text-align: center !important;
+    gap: 20px !important;
+  }
+  
+  .chat-room {
+    height: 480px !important;
+  }
+  
+  .chat-msg-bubble {
+    max-width: 85% !important;
+  }
+}
+
+/* Spinner Loader Component */
+.spinner-loader {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(170, 59, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: var(--accent);
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Error Banner Alerts */
+.error-alert-banner {
+  background: #fef2f2;
+  border: 1px solid #fee2e2;
+  color: #991b1b;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+  text-align: left;
+}
+
+/* Empty States Message Class */
+.empty-placeholder-msg {
+  text-align: center;
+  color: var(--text);
+  padding: 30px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  background: rgba(244, 243, 236, 0.2);
+}

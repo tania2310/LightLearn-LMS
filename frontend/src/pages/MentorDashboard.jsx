@@ -12,6 +12,17 @@ function MentorDashboard() {
 
     const rejected = courses.filter(c => c.status === "rejected").length;
 
+    const totalStudentsEnrolled = courses.reduce((sum, c) => sum + (c.enrolled_count || 0), 0);
+    const ratedCourses = courses.filter(c => c.average_rating > 0);
+    const averageRating = ratedCourses.length > 0 
+        ? (ratedCourses.reduce((sum, c) => sum + c.average_rating, 0) / ratedCourses.length).toFixed(1)
+        : "0.0";
+
+    const totalModules = courses.reduce((sum, c) => sum + (c.modules || []).length, 0);
+    const totalLessons = courses.reduce((sum, c) => sum + (c.modules || []).reduce((mSum, m) => mSum + (m.lessons || []).length, 0), 0);
+    const totalRevenue = courses.reduce((sum, c) => sum + (c.enrolled_count || 0) * Number(c.price || 0), 0);
+    const popularCourse = [...courses].sort((a, b) => (b.enrolled_count || 0) - (a.enrolled_count || 0))[0]?.title || "N/A";
+
     useEffect(() => {
         API.get("courses/")
             .then((response) => {
@@ -85,6 +96,36 @@ function MentorDashboard() {
                     <div className="card">
                         <h2>{rejected}</h2>
                         <p>Rejected</p>
+                    </div>
+
+                    <div className="card">
+                        <h2>{totalStudentsEnrolled}</h2>
+                        <p>Enrolled Students</p>
+                    </div>
+
+                    <div className="card">
+                        <h2>{averageRating} ⭐</h2>
+                        <p>Avg Course Rating</p>
+                    </div>
+
+                    <div className="card">
+                        <h2>{totalModules}</h2>
+                        <p>Total Modules</p>
+                    </div>
+
+                    <div className="card">
+                        <h2>{totalLessons}</h2>
+                        <p>Total Lessons</p>
+                    </div>
+
+                    <div className="card">
+                        <h2>₹{totalRevenue.toLocaleString()}</h2>
+                        <p>Estimated Revenue</p>
+                    </div>
+
+                    <div className="card">
+                        <h2 style={{ fontSize: "1.1rem", padding: "10px 0" }}>{popularCourse}</h2>
+                        <p>Most Popular Course</p>
                     </div>
 
                 </div>

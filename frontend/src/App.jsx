@@ -22,13 +22,31 @@ import CreateQuestion from "./pages/CreateQuestion";
 import StudentProgress from "./pages/StudentProgress";
 import PendingMentors from "./pages/PendingMentors";
 import PendingEnrollments from "./pages/PendingEnrollments";
+import VerifyOTP from "./pages/VerifyOTP";
+import ForgotPassword from "./pages/ForgotPassword";
+import VerifyResetOTP from "./pages/VerifyResetOTP";
+import ResetPassword from "./pages/ResetPassword";
+
+import QA from "./pages/Q&A";
+import Discussion from "./pages/Discussion";
+import Reviews from "./pages/Reviews";
+import Certificate from "./pages/Certificate";
+import SearchResults from "./pages/SearchResults";
+import Notifications from "./pages/Notifications";
+import RefundRequests from "./pages/RefundRequests";
+import Checkout from "./pages/Checkout";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentCancel from "./pages/PaymentCancel";
+import PaymentHistory from "./pages/PaymentHistory";
 
 import ProtectedRoute from "./components/ProtectedRoute";
+import { NotificationProvider } from "./components/NotificationProvider";
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Login />} />
+    <NotificationProvider>
+      <Routes>
+        <Route path="/" element={<Login />} />
 
       <Route path="/register" element={<Register />} />
 
@@ -62,6 +80,54 @@ function App() {
         element={
           <ProtectedRoute>
             <Modules />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/courses/:id/qa"
+        element={
+          <ProtectedRoute>
+            <QA />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/courses/:id/chat"
+        element={
+          <ProtectedRoute>
+            <Discussion />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/courses/:id/reviews"
+        element={
+          <ProtectedRoute>
+            <Reviews />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/courses/:id/certificate"
+        element={
+          <ProtectedRoute>
+            <Certificate />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/search"
+        element={
+          <ProtectedRoute>
+            <SearchResults />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/notifications"
+        element={
+          <ProtectedRoute>
+            <Notifications />
           </ProtectedRoute>
         }
       />
@@ -179,14 +245,79 @@ function App() {
         }
       />
       <Route
+        path="/refund-requests"
+        element={
+          <ProtectedRoute allowedRoles={["student"]}>
+            <RefundRequests />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/admin/pending-mentors"
-        element={<PendingMentors />}
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <PendingMentors />
+          </ProtectedRoute>
+        }
       />
       <Route
         path="/admin/enrollments"
-        element={<PendingEnrollments />}
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <PendingEnrollments />
+          </ProtectedRoute>
+        }
       />
-    </Routes>
+      <Route path="/verify-otp"
+        element={<VerifyOTP />}
+      />
+      <Route
+        path="/forgot-password"
+        element={<ForgotPassword />}
+      />
+      <Route
+        path="/verify-reset-otp"
+        element={<VerifyResetOTP />}
+      />
+      <Route
+        path="/reset-password"
+        element={<ResetPassword />}
+      />
+      <Route
+        path="/checkout/:courseId"
+        element={
+          <ProtectedRoute allowedRoles={["student"]}>
+            <Checkout />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/payment-success"
+        element={
+          <ProtectedRoute allowedRoles={["student"]}>
+            <PaymentSuccess />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/payment-cancel"
+        element={
+          <ProtectedRoute allowedRoles={["student"]}>
+            <PaymentCancel />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/payment-history"
+        element={
+          <ProtectedRoute allowedRoles={["student", "admin"]}>
+            <PaymentHistory />
+          </ProtectedRoute>
+        }
+      />
+
+      </Routes>
+    </NotificationProvider>
   );
 }
 

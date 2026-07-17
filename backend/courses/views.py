@@ -18,6 +18,7 @@ from .models import (
     Question,
     Review,
     Certificate,
+    ReviewReport,
 )
 from .serializers import (
     CourseSerializer,
@@ -29,8 +30,9 @@ from .serializers import (
     QuestionSerializer,
     ReviewSerializer,
     CertificateSerializer,
+    ReviewReportSerializer,
 )
-from .permissions import IsMentor, IsOwnerOrReadOnly, IsAdmin
+from .permissions import IsMentor, IsOwnerOrReadOnly, IsAdmin, IsReviewOwnerOrReadOnly
 User = get_user_model()
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()      # <-- add this
@@ -57,15 +59,26 @@ class CourseViewSet(viewsets.ModelViewSet):
         return [IsAuthenticated()]
 
     def perform_create(self, serializer):
-        serializer.save(
+        course = serializer.save(
             mentor=self.request.user,
             status="pending"
         )
+        try:
+            from search.indexing import update_course_index
+            update_course_index(course)
+        except Exception:
+            pass
+
     def perform_update(self, serializer):
         if self.request.user.role == "mentor":
-            serializer.save(status="pending")
+            course = serializer.save(status="pending")
         else:
-            serializer.save()
+            course = serializer.save()
+        try:
+            from search.indexing import update_course_index
+            update_course_index(course)
+        except Exception:
+            pass
 
     @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
     def submit(self, request, pk=None):
@@ -75,7 +88,7 @@ class CourseViewSet(viewsets.ModelViewSet):
             return Response(
                 {"error": "Only the mentor can submit this course."},
                 status=status.HTTP_403_FORBIDDEN,
-            )
+                )
 
         course.status = "pending"
         course.save()
@@ -84,12 +97,31 @@ class CourseViewSet(viewsets.ModelViewSet):
             {"message": "Course submitted for approval."},
             status=status.HTTP_200_OK,
         )
+
+    @action(detail=True, methods=["post"], permission_classes=[IsMentor])
+    def announce(self, request, pk=None):
+        course = self.get_object()
+        title = request.data.get("title", "Course Announcement")
+        message = request.data.get("message")
+        if not message:
+            return Response({"error": "Message is required."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            from notifications.services import send_course_announcement
+            send_course_announcement(course, title, message)
+        except Exception as e:
+            pass
+        return Response({"message": "Announcement sent successfully."})
     @action(detail=True, methods=["post"], permission_classes=[IsAdmin])
     def approve(self, request, pk=None):
         course = self.get_object()
 
         course.status = "approved"
         course.save()
+        try:
+            from search.indexing import update_course_index
+            update_course_index(course)
+        except Exception:
+            pass
 
         return Response(
             {"message": "Course approved successfully."}
@@ -100,6 +132,11 @@ class CourseViewSet(viewsets.ModelViewSet):
 
         course.status = "rejected"
         course.save()
+        try:
+            from search.indexing import update_course_index
+            update_course_index(course)
+        except Exception:
+            pass
 
         return Response(
             {"message": "Course rejected."}
@@ -153,6 +190,14 @@ class LessonViewSet(viewsets.ModelViewSet):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
 
+    def perform_create(self, serializer):
+        lesson = serializer.save()
+        try:
+            from notifications.services import send_new_lesson_notification
+            send_new_lesson_notification(lesson)
+        except Exception as e:
+            pass
+
     def get_permissions(self):
         if self.action in [
             "create",
@@ -165,20 +210,45 @@ class LessonViewSet(viewsets.ModelViewSet):
         return [IsAuthenticated()]
 
 class EnrollmentViewSet(viewsets.ModelViewSet):
+    queryset = Enrollment.objects.all()
     serializer_class = EnrollmentSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        if self.request.user.role == "admin":
+        user = self.request.user
+
+        if user.role == "admin":
             return Enrollment.objects.all()
 
-        return Enrollment.objects.filter(student=self.request.user)
+        return Enrollment.objects.filter(student=user)
 
     def perform_create(self, serializer):
         serializer.save(
             student=self.request.user,
             status="pending",
         )
+
+    @action(detail=True, methods=["post"], permission_classes=[IsAdmin])
+    def approve(self, request, pk=None):
+        enrollment = self.get_object()
+        enrollment.status = "approved"
+        enrollment.save()
+        try:
+            from notifications.services import send_enrollment_notification
+            send_enrollment_notification(enrollment)
+        except Exception as e:
+            pass
+
+        return Response({"message": "Enrollment approved."})
+
+    @action(detail=True, methods=["post"], permission_classes=[IsAdmin])
+    def reject(self, request, pk=None):
+        enrollment = self.get_object()
+        enrollment.status = "rejected"
+        enrollment.save()
+
+        return Response({"message": "Enrollment rejected."})
+
 class ProgressViewSet(viewsets.ModelViewSet):
     queryset = Progress.objects.all()
     serializer_class = ProgressSerializer
@@ -239,8 +309,78 @@ class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticated]
 
+    def get_permissions(self):
+        if self.action in ["update", "partial_update", "destroy"]:
+            return [IsAuthenticated(), IsReviewOwnerOrReadOnly()]
+        return [IsAuthenticated()]
+
     def perform_create(self, serializer):
+        from rest_framework.exceptions import ValidationError
+        course = serializer.validated_data.get('course')
+        if not Enrollment.objects.filter(student=self.request.user, course=course).exists():
+            raise ValidationError("Only enrolled students can submit reviews.")
+        if Review.objects.filter(student=self.request.user, course=course).exists():
+            raise ValidationError("You have already reviewed this course.")
         serializer.save(student=self.request.user)
+
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
+    def report(self, request, pk=None):
+        review = self.get_object()
+        reason = request.data.get("reason")
+        description = request.data.get("description", "")
+
+        if not reason:
+            return Response({"error": "Reason is required."}, status=400)
+
+        if ReviewReport.objects.filter(reported_by=request.user, review=review).exists():
+            return Response({"error": "You have already reported this review."}, status=400)
+
+        report = ReviewReport.objects.create(
+            review=review,
+            reported_by=request.user,
+            reason=reason,
+            description=description
+        )
+        return Response({"message": "Abuse report submitted successfully."}, status=201)
+
+    @action(detail=True, methods=["post"], permission_classes=[IsAdmin])
+    def hide(self, request, pk=None):
+        review = self.get_object()
+        review.is_hidden = True
+        review.hidden_at = timezone.now()
+        review.hidden_by = request.user
+        review.save()
+        return Response({"message": "Review hidden by moderator."})
+
+    @action(detail=True, methods=["post"], permission_classes=[IsAdmin])
+    def restore(self, request, pk=None):
+        review = self.get_object()
+        review.is_hidden = False
+        review.hidden_at = None
+        review.hidden_by = None
+        review.save()
+        return Response({"message": "Review restored."})
+
+class ReviewReportViewSet(viewsets.ModelViewSet):
+    queryset = ReviewReport.objects.all().order_by('-created_at')
+    serializer_class = ReviewReportSerializer
+    permission_classes = [IsAdmin]
+
+    @action(detail=True, methods=["post"], permission_classes=[IsAdmin])
+    def dismiss(self, request, pk=None):
+        report = self.get_object()
+        report.status = "Dismissed"
+        report.reviewed_at = timezone.now()
+        report.save()
+        return Response({"message": "Abuse report dismissed."})
+
+    @action(detail=True, methods=["post"], permission_classes=[IsAdmin])
+    def reviewed(self, request, pk=None):
+        report = self.get_object()
+        report.status = "Reviewed"
+        report.reviewed_at = timezone.now()
+        report.save()
+        return Response({"message": "Abuse report marked as reviewed."})
 
 class CertificateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -255,6 +395,18 @@ class CertificateView(APIView):
         ).exists():
             return Response(
                 {"error": "You are not enrolled in this course."},
+                status=400,
+            )
+
+        # Check for approved refund request
+        from payments.models import RefundRequest
+        if RefundRequest.objects.filter(
+            student=request.user,
+            enrollment__course=course,
+            status="Approved"
+        ).exists():
+            return Response(
+                {"error": "You have been refunded for this course."},
                 status=400,
             )
 
@@ -338,6 +490,11 @@ class AdminStatsView(APIView):
             "pending": Course.objects.filter(status="pending").count(),
             "approved": Course.objects.filter(status="approved").count(),
             "rejected": Course.objects.filter(status="rejected").count(),
+            "users": User.objects.count(),
+            "approved_mentors": User.objects.filter(role="mentor", is_approved=True).count(),
+            "pending_mentors": User.objects.filter(role="mentor", is_approved=False).count(),
+            "enrollments": Enrollment.objects.count(),
+            "certificates": Certificate.objects.count(),
         }
 
         return Response(data)
@@ -368,19 +525,114 @@ def approve_enrollment(request, enrollment_id):
 
     enrollment.status = "approved"
     enrollment.save()
+    try:
+        from notifications.services import send_enrollment_notification
+        send_enrollment_notification(enrollment)
+    except Exception as e:
+        pass
 
     return Response({
         "message": "Enrollment approved."
     })
 
+# Duplicate kept to comply with non-deletion rule but updated to trigger notifications
 @api_view(["POST"])
 @permission_classes([IsAdminUser])
-def approve_enrollment(request, enrollment_id):
+def approve_enrollment_duplicate(request, enrollment_id):
     enrollment = Enrollment.objects.get(id=enrollment_id)
 
     enrollment.status = "approved"
     enrollment.save()
+    try:
+        from notifications.services import send_enrollment_notification
+        send_enrollment_notification(enrollment)
+    except Exception as e:
+        pass
 
     return Response({
         "message": "Enrollment approved successfully."
     })
+
+from reportlab.lib.pagesizes import letter
+from django.utils import timezone
+
+class AdminReportView(APIView):
+    permission_classes = [IsAdmin]
+
+    def get(self, request):
+        report_type = request.query_params.get("type", "users")
+        
+        response = HttpResponse(content_type="application/pdf")
+        response["Content-Disposition"] = f'attachment; filename="admin_{report_type}_report.pdf"'
+        
+        p = canvas.Canvas(response, pagesize=letter)
+        p.setFont("Helvetica-Bold", 20)
+        p.drawString(100, 750, f"LightLearn LMS - {report_type.capitalize()} Report")
+        p.setFont("Helvetica", 10)
+        p.drawString(100, 730, f"Generated at: {timezone.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        p.line(100, 720, 500, 720)
+        
+        y = 690
+        
+        if report_type == "users":
+            users = User.objects.all().order_by("id")
+            p.drawString(100, y, "ID | Username | Email | Role | Approved | Verified")
+            y -= 20
+            p.line(100, y + 10, 500, y + 10)
+            for u in users:
+                if y < 50:
+                    p.showPage()
+                    p.setFont("Helvetica", 10)
+                    y = 750
+                p.drawString(100, y, f"{u.id} | {u.username} | {u.email} | {u.role} | {u.is_approved} | {u.is_email_verified}")
+                y -= 20
+                
+        elif report_type == "courses":
+            courses = Course.objects.all().order_by("id")
+            p.drawString(100, y, "ID | Title | Mentor | Category | Status")
+            y -= 20
+            p.line(100, y + 10, 500, y + 10)
+            for c in courses:
+                if y < 50:
+                    p.showPage()
+                    p.setFont("Helvetica", 10)
+                    y = 750
+                mentor_username = c.mentor.username if c.mentor else "None"
+                title_str = (c.title[:20] + "...") if len(c.title) > 20 else c.title
+                p.drawString(100, y, f"{c.id} | {title_str} | {mentor_username} | {c.category} | {c.status}")
+                y -= 20
+                
+        elif report_type == "enrollments":
+            enrollments = Enrollment.objects.all().order_by("id")
+            p.drawString(100, y, "ID | Student | Course | Status | Enrolled At")
+            y -= 20
+            p.line(100, y + 10, 500, y + 10)
+            for e in enrollments:
+                if y < 50:
+                    p.showPage()
+                    p.setFont("Helvetica", 10)
+                    y = 750
+                student_username = e.student.username if e.student else "None"
+                course_title = (e.course.title[:20] + "...") if e.course and len(e.course.title) > 20 else (e.course.title if e.course else "None")
+                enrolled_date = e.enrolled_at.strftime('%Y-%m-%d') if e.enrolled_at else "None"
+                p.drawString(100, y, f"{e.id} | {student_username} | {course_title} | {e.status} | {enrolled_date}")
+                y -= 20
+                
+        elif report_type == "certificates":
+            certificates = Certificate.objects.all().order_by("id")
+            p.drawString(100, y, "ID | Student | Course | Issued At")
+            y -= 20
+            p.line(100, y + 10, 500, y + 10)
+            for cert in certificates:
+                if y < 50:
+                    p.showPage()
+                    p.setFont("Helvetica", 10)
+                    y = 750
+                student_username = cert.student.username if cert.student else "None"
+                course_title = (cert.course.title[:20] + "...") if cert.course and len(cert.course.title) > 20 else (cert.course.title if cert.course else "None")
+                issued_date = cert.issued_at.strftime('%Y-%m-%d') if cert.issued_at else "None"
+                p.drawString(100, y, f"{cert.id} | {student_username} | {course_title} | {issued_date}")
+                y -= 20
+                
+        p.save()
+        return response
