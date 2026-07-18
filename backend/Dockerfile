@@ -33,4 +33,7 @@ ENV PYTHONUNBUFFERED=1
 EXPOSE 8000
 
 # Run using gunicorn for production deployment
-CMD ["sh", "-c", "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn --bind 0.0.0.0:8000 config.wsgi:application"]
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]

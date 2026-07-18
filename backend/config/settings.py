@@ -33,7 +33,8 @@ allowed_hosts_env = os.getenv("ALLOWED_HOSTS")
 if allowed_hosts_env:
     ALLOWED_HOSTS = [h.strip() for h in allowed_hosts_env.split(",") if h.strip()]
 else:
-    ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+    ALLOWED_HOSTS = ["127.0.0.1", "localhost", "learnhub-xsp4.onrender.com",
+]
 
 
 # Application definition
