@@ -1,61 +1,65 @@
 .dashboard-container {
     padding: 40px;
-    background: #f8fafc;
+    background: var(--background);
     min-height: 100vh;
 }
 
 .welcome-card {
-    background: white;
+    background: var(--card-bg);
     padding: 30px;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow);
     margin-bottom: 40px;
+    border: 1px solid var(--border);
 }
 
 .welcome-card h1 {
     margin-bottom: 15px;
-    color: #1e293b;
+    color: var(--text-primary);
 }
 
 .welcome-card p {
     margin: 8px 0;
-    color: #475569;
+    color: var(--text-secondary);
 }
 
-.primary-btn {
+.welcome-card .primary-btn {
     margin-top: 20px;
-    padding: 12px 24px;
-    background: #2563eb;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-.primary-btn:hover {
-    background: #1d4ed8;
 }
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 20px;
 }
 
+@media (max-width: 992px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .stat-card {
-    background: white;
+    background: var(--card-bg);
     padding: 25px;
     text-align: center;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
 }
 
 .stat-card h2 {
     font-size: 36px;
+    color: var(--text-primary);
 }
 
 .stat-card h3 {
     margin: 10px 0;
-    color: #1e293b;
+    color: var(--text-primary);
 }

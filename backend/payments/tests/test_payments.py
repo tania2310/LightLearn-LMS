@@ -41,27 +41,7 @@ class PaymentProcessingTests(APITestCase):
             course=self.course,
             status="pending"
         )
-        self.stripe_checkout_url = reverse("stripe-checkout")
         self.paypal_create_order_url = reverse("paypal-create-order")
-
-    @patch("stripe.checkout.Session.create")
-    def test_stripe_checkout_session_creation(self, mock_session_create):
-        # Mock stripe Session object returning session id and url
-        mock_session = MagicMock()
-        mock_session.id = "sess_mock_123"
-        mock_session.url = "https://checkout.stripe.com/pay/mock"
-        mock_session_create.return_value = mock_session
-
-        self.client.force_authenticate(user=self.student)
-        payload = {"enrollment_id": self.enrollment.id}
-        
-        response = self.client.post(self.stripe_checkout_url, payload, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["id"], "sess_mock_123")
-        self.assertEqual(response.data["url"], "https://checkout.stripe.com/pay/mock")
-        
-        # Verify Payment record created in Pending state
-        self.assertTrue(Payment.objects.filter(payment_intent_id="sess_mock_123", status="Pending").exists())
 
     @patch("requests.post")
     def test_paypal_order_creation_mock(self, mock_post):
@@ -87,3 +67,130 @@ class PaymentProcessingTests(APITestCase):
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertEqual(response.data["id"], "PAY-SANDBOX-ORDER-1")
             self.assertEqual(response.data["approval_url"], "https://paypal.com/approve/mock")
+
+    def test_paypal_capture_order_success(self):
+        payment = Payment.objects.create(
+            enrollment=self.enrollment,
+            student=self.student,
+            provider="PayPal",
+            transaction_id="PAY-SANDBOX-ORDER-1",
+            amount=299.00,
+            currency="INR",
+            status="Pending"
+        )
+        self.client.force_authenticate(user=self.student)
+        url = reverse("paypal-capture-order")
+        payload = {"order_id": "PAY-SANDBOX-ORDER-1"}
+        
+        with patch.dict("os.environ", {"PAYPAL_CLIENT_ID": "mock_paypal_client_id"}):
+            response = self.client.post(url, payload, format="json")
+            
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["success"])
+        self.assertEqual(response.data["status"], "Paid")
+        self.assertEqual(response.data["transaction_id"], "PAY-SANDBOX-ORDER-1")
+        self.assertEqual(response.data["payment_id"], payment.id)
+
+        payment.refresh_from_db()
+        self.assertEqual(payment.status, "Paid")
+        self.enrollment.refresh_from_db()
+        self.assertEqual(self.enrollment.status, "approved")
+
+    @patch("requests.post")
+    def test_paypal_capture_order_sandbox_success(self, mock_post):
+        payment = Payment.objects.create(
+            enrollment=self.enrollment,
+            student=self.student,
+            provider="PayPal",
+            transaction_id="PAY-SANDBOX-ORDER-SAND",
+            amount=299.00,
+            currency="INR",
+            status="Pending"
+        )
+        self.client.force_authenticate(user=self.student)
+        url = reverse("paypal-capture-order")
+        payload = {"order_id": "PAY-SANDBOX-ORDER-SAND"}
+
+        # Mock oauth token response
+        mock_auth_res = MagicMock()
+        mock_auth_res.json.return_value = {"access_token": "mock_access_token"}
+        
+        # Mock capture response
+        mock_capture_res = MagicMock()
+        mock_capture_res.json.return_value = {"status": "COMPLETED"}
+        
+        mock_post.side_effect = [mock_auth_res, mock_capture_res]
+
+        with patch.dict("os.environ", {"PAYPAL_CLIENT_ID": "real_sandbox_client_id", "PAYPAL_SECRET": "real_sandbox_secret"}):
+            response = self.client.post(url, payload, format="json")
+            
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["success"])
+        self.assertEqual(response.data["status"], "Paid")
+        self.assertEqual(response.data["transaction_id"], "PAY-SANDBOX-ORDER-SAND")
+
+        payment.refresh_from_db()
+        self.assertEqual(payment.status, "Paid")
+        self.enrollment.refresh_from_db()
+        self.assertEqual(self.enrollment.status, "approved")
+
+    def test_paypal_capture_order_idempotent(self):
+        payment = Payment.objects.create(
+            enrollment=self.enrollment,
+            student=self.student,
+            provider="PayPal",
+            transaction_id="PAY-SANDBOX-ORDER-2",
+            amount=299.00,
+            currency="INR",
+            status="Paid"
+        )
+        self.client.force_authenticate(user=self.student)
+        url = reverse("paypal-capture-order")
+        payload = {"order_id": "PAY-SANDBOX-ORDER-2"}
+        
+        response = self.client.post(url, payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["success"])
+        self.assertEqual(response.data["status"], "Paid")
+        self.assertEqual(response.data["message"], "Payment already captured.")
+
+    def test_download_receipt_pdf_success(self):
+        payment = Payment.objects.create(
+            enrollment=self.enrollment,
+            student=self.student,
+            provider="PayPal",
+            transaction_id="PAY-SANDBOX-ORDER-3",
+            amount=299.00,
+            currency="INR",
+            status="Paid"
+        )
+        self.client.force_authenticate(user=self.student)
+        url = reverse("payment-receipt", args=[payment.id])
+        
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response["Content-Type"], "application/pdf")
+        self.assertTrue(len(b"".join(response.streaming_content)) > 0)
+
+    def test_download_receipt_pdf_forbidden(self):
+        payment = Payment.objects.create(
+            enrollment=self.enrollment,
+            student=self.student,
+            provider="PayPal",
+            transaction_id="PAY-SANDBOX-ORDER-4",
+            amount=299.00,
+            currency="INR",
+            status="Paid"
+        )
+        other_user = User.objects.create_user(
+            username="other_student",
+            email="other@example.com",
+            password="password123",
+            role="student"
+        )
+        self.client.force_authenticate(user=other_user)
+        url = reverse("payment-receipt", args=[payment.id])
+        
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+

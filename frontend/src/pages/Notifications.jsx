@@ -34,11 +34,11 @@ function Notifications() {
     return (
         <>
             <Navbar />
-            <div className="reviews-container" style={{ maxWidth: "800px", margin: "40px auto", padding: "0 20px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "25px" }}>
-                    <div>
-                        <h1 style={{ margin: "0 0 5px 0" }}>Notification Center</h1>
-                        <p style={{ color: "var(--text)", margin: "0" }}>
+            <div className="notifications-page-container">
+                <div className="notifications-header">
+                    <div className="notifications-header-left">
+                        <h1 className="notifications-title">Notification Center</h1>
+                        <p className="notifications-unread-subtitle">
                             You have <strong>{unreadCount}</strong> unread notifications
                         </p>
                     </div>
@@ -53,23 +53,24 @@ function Notifications() {
                     )}
                 </div>
 
-                <div className="reviews-list" style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+                <div className="notifications-list">
                     {notifications.length === 0 ? (
-                        <p style={{ color: "var(--text)", textAlign: "center", padding: "40px" }}>
-                            No notifications yet.
-                        </p>
+                        <div className="notification-empty-card">
+                            <div style={{ fontSize: "3rem", marginBottom: "15px" }}>🔔</div>
+                            <h3 style={{ color: "var(--text-h)", margin: "0 0 10px 0", fontSize: "1.3rem" }}>No notifications yet</h3>
+                            <p style={{ color: "var(--text)", margin: 0, fontSize: "0.95rem" }}>
+                                You're all caught up! We will notify you when something new arrives.
+                            </p>
+                        </div>
                     ) : (
                         notifications.map(n => (
                             <div 
                                 key={n.id} 
-                                className="review-card"
+                                className="notification-item-card"
                                 onClick={() => handleNotificationClick(n)}
                                 style={{
-                                    cursor: "pointer",
-                                    position: "relative",
                                     borderLeft: n.is_read ? "3px solid transparent" : "3px solid #7c3aed",
-                                    background: n.is_read ? "var(--card-bg)" : "var(--hover-bg, rgba(124, 58, 237, 0.03))",
-                                    transition: "all 0.2s"
+                                    background: n.is_read ? "var(--card-bg)" : "var(--hover-bg, rgba(124, 58, 237, 0.03))"
                                 }}
                             >
                                 <div style={{ display: "flex", gap: "15px", alignItems: "flex-start" }}>

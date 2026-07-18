@@ -1,12 +1,13 @@
 .courses-page {
     padding: 40px;
-    background: #f5f7fb;
+    background: var(--background);
     min-height: 100vh;
 }
 
 .courses-page h1 {
     text-align: center;
     margin-bottom: 30px;
+    color: var(--text-primary);
 }
 
 .search-box {
@@ -17,7 +18,9 @@
     padding: 12px 18px;
     font-size: 16px;
     border-radius: 8px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border);
+    background: var(--input-bg);
+    color: var(--input-text);
 }
 
 .course-grid {
@@ -27,27 +30,29 @@
 }
 
 .course-card {
-    background: white;
+    background: var(--card-bg);
     border-radius: 12px;
     padding: 20px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, .08);
+    box-shadow: var(--shadow);
     display: flex;
     flex-direction: column;
+    border: 1px solid var(--border);
 }
 
 .course-card h2 {
     margin-bottom: 10px;
-    color: #1e3a8a;
+    color: var(--text-primary);
 }
 
 .mentor {
-    color: #666;
+    color: var(--text-secondary);
     margin-bottom: 10px;
     font-weight: 500;
 }
 
 .course-card p {
     line-height: 1.6;
+    color: var(--text-secondary);
 }
 
 .course-info {
@@ -55,51 +60,54 @@
     justify-content: space-between;
     margin-top: 15px;
     font-weight: 600;
+    color: var(--text-primary);
 }
 
 .details-btn {
     margin-top: 20px;
     text-align: center;
-    background: #2563eb;
-    color: white;
+    background: var(--primary);
+    color: #fff;
     text-decoration: none;
     padding: 10px;
     border-radius: 8px;
     transition: .3s;
+    font-weight: 500;
 }
 
 .details-btn:hover {
-    background: #1d4ed8;
+    background: var(--primary-hover);
 }
 
 .course-details-page {
-    background: #f5f7fb;
+    background: var(--background);
     min-height: 100vh;
     padding: 40px;
 }
 
 .course-header {
-    background: white;
+    background: var(--card-bg);
     padding: 35px;
     border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, .08);
+    box-shadow: var(--shadow);
     margin-bottom: 30px;
+    border: 1px solid var(--border);
 }
 
 .course-header h1 {
     text-align: center;
-    color: #1e3a8a;
+    color: var(--text-primary);
     margin-bottom: 20px;
 }
 
 .course-header h2 {
-    color: #333;
+    color: var(--text-primary);
     margin-top: 20px;
 }
 
 .course-description {
     text-align: center;
-    color: #555;
+    color: var(--text-secondary);
     margin-bottom: 30px;
 }
 
@@ -113,24 +121,26 @@
 .course-info p {
     margin: 0;
     font-size: 17px;
-    color: #444;
+    color: var(--text-secondary);
 }
 
 .module-card {
-    background: white;
+    background: var(--card-bg);
     border-radius: 12px;
     padding: 20px;
     margin-bottom: 20px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, .08);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
 }
 
 .module-card h3 {
-    color: #1e3a8a;
+    color: var(--text-primary);
     margin-bottom: 15px;
 }
 
 .module-card ul {
     padding-left: 20px;
+    color: var(--text-secondary);
 }
 
 .module-card li {
@@ -140,15 +150,16 @@
 .enroll-btn {
     display: block;
     margin: 35px auto 0;
-    background: #2563eb;
-    color: white;
+    background: var(--primary);
+    color: #fff;
     border: none;
     padding: 14px 35px;
     border-radius: 8px;
     cursor: pointer;
     font-size: 16px;
+    font-weight: 500;
 }
 
 .enroll-btn:hover {
-    background: #1d4ed8;
+    background: var(--primary-hover);
 }

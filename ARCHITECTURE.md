@@ -12,7 +12,6 @@ graph TD
     Client <-->|WebSockets| Daphne[Daphne ASGI Server]
     Django <-->|ORM / SQL| DB[(PostgreSQL Database)]
     Daphne <-->|PubSub Channel Layer| Redis[(Redis Server)]
-    Django <-->|Third Party API calls| Stripe[Stripe Checkout SDK]
     Django <-->|Third Party API calls| PayPal[PayPal Sandbox REST API]
 ```
 
@@ -99,26 +98,26 @@ sequenceDiagram
 
 ---
 
-## 5. Payment Flow (Stripe/PayPal Integration)
+## 5. Payment Flow (PayPal Integration)
 
 ```mermaid
 sequenceDiagram
     participant Student as Student Client
     participant API as Payments API
-    participant Gateway as Stripe/PayPal
+    participant Gateway as PayPal
     participant DB as Database
 
-    Student->>API: POST /payments/stripe/create-checkout-session/
-    API->>Gateway: Create checkout session object
-    Gateway-->>API: Returns session URL
-    API-->>Student: Returns session URL
-    Student->>Gateway: Redirect student to pay
-    Gateway-->>Student: Verification success (Redirects Success Page)
-    Student->>API: POST /payments/stripe/check-session/ (session_id)
-    API->>Gateway: Query session payment status
-    Gateway-->>API: Status = Paid
+    Student->>API: POST /paypal/create-order/
+    API->>Gateway: Create order payload
+    Gateway-->>API: Returns order ID and approval URL
+    API-->>Student: Returns order ID and approval URL
+    Student->>Gateway: Redirect student to approval URL
+    Gateway-->>Student: Approved redirect to success page
+    Student->>API: POST /paypal/capture-order/ (order_id)
+    API->>Gateway: Capture order API request
+    Gateway-->>API: Status = COMPLETED
     API->>DB: Update payment to Paid & enrollment to approved
-    API-->>Student: Payment Verified (Start Learning)
+    API-->>Student: Success: payment verified
 ```
 
 ---

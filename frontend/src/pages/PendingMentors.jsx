@@ -29,33 +29,36 @@ function PendingMentors() {
         <>
             <Navbar />
 
-            <div style={{ padding: "40px" }}>
-                <h1>Pending Mentor Approvals</h1>
+            <div className="dashboard-container">
+                <h1 style={{ marginBottom: "30px", color: "var(--text-primary)" }}>Pending Mentor Approvals</h1>
 
                 {mentors.length === 0 ? (
-                    <p>No pending mentors.</p>
+                    <p className="empty-placeholder-msg">No pending mentors.</p>
                 ) : (
-                    mentors.map((mentor) => (
-                        <div
-                            key={mentor.id}
-                            style={{
-                                border: "1px solid #ddd",
-                                padding: "20px",
-                                marginBottom: "15px",
-                                borderRadius: "10px",
-                            }}
-                        >
-                            <h3>{mentor.username}</h3>
-
-                            <p>{mentor.email}</p>
-
-                            <button
-                                onClick={() => approveMentor(mentor.id)}
-                            >
-                                Approve
-                            </button>
-                        </div>
-                    ))
+                    <div className="stats-grid">
+                        {mentors.map((mentor) => (
+                            <div className="card" key={mentor.id} style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "flex-start" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                                    <div className="avatar">
+                                        {mentor.username.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div>
+                                        <h3 style={{ margin: 0, color: "var(--text-primary)" }}>{mentor.username}</h3>
+                                        <p style={{ margin: "4px 0 0 0", color: "var(--text-secondary)", fontSize: "0.9rem" }}>{mentor.email}</p>
+                                    </div>
+                                </div>
+                                <div style={{ display: "flex", gap: "10px", width: "100%", marginTop: "10px" }}>
+                                    <button
+                                        className="primary-btn"
+                                        onClick={() => approveMentor(mentor.id)}
+                                        style={{ width: "100%" }}
+                                    >
+                                        Approve
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 )}
             </div>
         </>

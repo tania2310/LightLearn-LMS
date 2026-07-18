@@ -24,7 +24,7 @@ function AdminDashboard() {
             API.get("accounts/admin/users/"),
             API.get("reviews/"),
             API.get("refunds/").catch(() => ({ data: [] })),
-            API.get("payments/history/").catch(() => ({ data: [] })),
+            API.get("history/").catch(() => ({ data: [] })),
             API.get("reviews/reports/").catch(() => ({ data: [] }))
         ])
             .then(([courseRes, statRes, mentorRes, usersRes, reviewsRes, refundsRes, paymentsRes, reportsRes]) => {
@@ -78,7 +78,7 @@ function AdminDashboard() {
 
     const refundPayment = (paymentId) => {
         if (!window.confirm("Are you sure you want to refund this payment via the provider?")) return;
-        API.post(`payments/refund/${paymentId}/`)
+        API.post(`refund/${paymentId}/`)
             .then(() => {
                 alert("Refund processed successfully and enrollment access revoked.");
                 fetchAllData();
@@ -131,7 +131,7 @@ function AdminDashboard() {
         const paidPayment = req && payments.find(p => p.enrollment === req.enrollment && p.status === "Paid");
 
         if (paidPayment) {
-            if (window.confirm("This refund request is linked to a paid transaction. Refund via Stripe/PayPal provider?")) {
+            if (window.confirm("This refund request is linked to a paid transaction. Refund via PayPal provider?")) {
                 refundPayment(paidPayment.id);
                 return;
             }

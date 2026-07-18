@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import API from "../api/api";
 import Navbar from "../components/Navbar";
 import LessonViewer from "./LessonViewer";
+import "../styles/learningFlow.css";
 
 function LessonDetails() {
     const { id } = useParams();
@@ -80,17 +81,15 @@ function LessonDetails() {
                 <hr />
 
                 {lesson.lesson_type === "video" && (
-                    <video
-                        width="800"
-                        controls
-                        style={{
-                            borderRadius: "10px",
-                            marginTop: "20px",
-                        }}
-                    >
-                        <source src={fileUrl} />
-                        Your browser does not support video.
-                    </video>
+                    <div className="video-player-container" style={{ marginTop: "20px" }}>
+                        <video
+                            controls
+                            className="html5-video-player"
+                        >
+                            <source src={fileUrl} />
+                            Your browser does not support video.
+                        </video>
+                    </div>
                 )}
 
                 {lesson.lesson_type === "pdf" && (

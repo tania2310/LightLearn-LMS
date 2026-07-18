@@ -1,6 +1,6 @@
 # LightLearn LMS (Learning Management System)
 
-A state-of-the-art, feature-rich Learning Management System designed to bridge students, mentors, and administrators. This application supports course catalog browsing, video/text lesson learning, progress checklists, real-time classroom locking discussions, automatic certificates generation, and Stripe/PayPal secure checkouts.
+A state-of-the-art, feature-rich Learning Management System designed to bridge students, mentors, and administrators. This application supports course catalog browsing, video/text lesson learning, progress checklists, real-time classroom locking discussions, automatic certificates generation, and PayPal secure checkouts.
 
 ## Technology Stack
 
@@ -22,7 +22,7 @@ LightLearn-LMS/
 │   ├── courses/          # Courses metadata, modules, and lessons CRUD
 │   ├── discussion/       # WebSocket chat consumers & moderated discussion rooms
 │   ├── enrollments/      # Course enrollment management
-│   ├── payments/         # Stripe/PayPal transactions & refund handling
+│   ├── payments/         # PayPal transactions & refund handling
 │   ├── qa/               # Lesson Q&A forums
 │   └── reviews/          # Course ratings and student feedback
 └── frontend/
@@ -38,7 +38,7 @@ LightLearn-LMS/
 
 - **Authentication & Security**: Multi-role signup (Student/Mentor), OTP code generation, JWT authorization tokens, and admin approvals.
 - **Interactive Discussion Rooms**: Real-time room locked discussions, student-specific inputs, and moderator delete actions.
-- **Payments & Webhooks**: Integrated payment checkout sessions utilizing Stripe and PayPal Sandbox captures.
+- **Payments & Webhooks**: Integrated payment checkout sessions utilizing PayPal Sandbox captures.
 - **Administrative Moderation**: Verification controls for course approval, refund request revokes, and mentor registrations.
 
 ---

@@ -22,10 +22,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         password = validated_data.pop("password")
         user = User(**validated_data)
 
-        if user.role == "student":
-            user.is_approved = True
-        else:
+        if user.role == "mentor":
             user.is_approved = False
+        else:
+            user.is_approved = True 
 
         user.is_email_verified = False
 

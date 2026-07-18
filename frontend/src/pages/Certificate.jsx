@@ -14,42 +14,63 @@ function Certificate() {
     const [certificateBlob, setCertificateBlob] = useState(null);
     const [loading, setLoading] = useState(true);
     const [errorMsg, setErrorMsg] = useState("");
+    const [quizId, setQuizId] = useState(null);
 
     useEffect(() => {
-        // Fetch course details
-        API.get(`courses/${courseId}/`)
-            .then(res => setCourse(res.data))
-            .catch(console.log);
+        setLoading(true);
 
         // Fetch current user details
         API.get("accounts/profile/")
             .then(res => setCurrentUser(res.data))
             .catch(console.log);
 
-        // Call certificate endpoint directly to verify eligibility and load blob
-        API.get(`courses/${courseId}/certificate/`, { responseType: "blob" })
-            .then((res) => {
-                setCertificateBlob(res.data);
-                setLoading(false);
+        // Fetch course details, progress, and quizzes to evaluate eligibility
+        Promise.all([
+            API.get(`courses/${courseId}/`),
+            API.get("progress/"),
+            API.get("quizzes/")
+        ])
+            .then(([courseRes, progressRes, quizRes]) => {
+                const courseData = courseRes.data;
+                setCourse(courseData);
+
+                const sortedMods = courseData.modules || [];
+                const lessonsFlat = sortedMods.flatMap(m => m.lessons || []);
+                const allLessonIds = lessonsFlat.map(l => l.id);
+
+                const completedIds = progressRes.data
+                    .filter(item => item.completed)
+                    .map(item => item.lesson);
+                
+                const allLessonsCompleted = lessonsFlat.length > 0 && lessonsFlat.every(l => completedIds.includes(l.id));
+
+                const courseQuizzes = quizRes.data.filter(q => allLessonIds.includes(q.lesson));
+                const hasQuiz = courseQuizzes.length > 0;
+                if (hasQuiz) {
+                    setQuizId(courseQuizzes[0].id);
+                }
+
+                const quizPassed = localStorage.getItem(`quiz_passed_${courseId}`) === "true";
+
+                if (!allLessonsCompleted) {
+                    setErrorMsg("You are not eligible for a certificate yet. Please complete all lessons.");
+                    setLoading(false);
+                } else if (hasQuiz && !quizPassed) {
+                    setErrorMsg("You must pass the course quiz before claiming your certificate.");
+                    setLoading(false);
+                } else {
+                    // Call certificate endpoint directly to load blob
+                    return API.get(`courses/${courseId}/certificate/`, { responseType: "blob" })
+                        .then((res) => {
+                            setCertificateBlob(res.data);
+                            setLoading(false);
+                        });
+                }
             })
             .catch((err) => {
-                console.error("Error fetching certificate:", err);
-                if (err.response && err.response.data) {
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                        try {
-                            const errorObj = JSON.parse(reader.result);
-                            setErrorMsg(errorObj.error || "Failed to load certificate.");
-                        } catch (e) {
-                            setErrorMsg("You are not eligible for a certificate yet. Please complete all lessons.");
-                        }
-                        setLoading(false);
-                    };
-                    reader.readAsText(err.response.data);
-                } else {
-                    setErrorMsg("Failed to load certificate. Please complete all lessons in this course.");
-                    setLoading(false);
-                }
+                console.error("Error evaluating certificate eligibility:", err);
+                setErrorMsg("Failed to load certificate. Please complete all lessons in this course.");
+                setLoading(false);
             });
     }, [courseId]);
 
@@ -90,9 +111,15 @@ function Certificate() {
                         <div style={{ fontSize: "3rem", marginBottom: "15px" }}>🔒</div>
                         <h2>Certificate Locked</h2>
                         <p style={{ color: "var(--text)", margin: "10px 0 20px 0" }}>{errorMsg}</p>
-                        <button className="btn-primary-flow" onClick={() => navigate(`/courses/${courseId}/modules`)}>
-                            Resume Learning
-                        </button>
+                        {errorMsg.includes("quiz") && quizId ? (
+                            <button className="btn-primary-flow" onClick={() => navigate(`/quiz/${quizId}`)}>
+                                Take Course Quiz
+                            </button>
+                        ) : (
+                            <button className="btn-primary-flow" onClick={() => navigate(`/courses/${courseId}/modules`)}>
+                                Resume Learning
+                            </button>
+                        )}
                     </div>
                 ) : (
                     <div>

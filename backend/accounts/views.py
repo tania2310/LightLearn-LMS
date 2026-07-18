@@ -153,6 +153,7 @@ def reset_password(request):
         user = User.objects.get(email=email)
 
         user.set_password(password)
+        user.is_email_verified = True
 
         user.otp = ""
         user.save()

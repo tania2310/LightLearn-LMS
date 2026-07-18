@@ -138,25 +138,8 @@ Authorization: Bearer <your_jwt_access_token>
 
 ### 4. Payments API
 
-#### Create Stripe Session
-- **URL**: `/api/payments/stripe/create-checkout-session/`
-- **Method**: `POST`
-- **Payload**:
-  ```json
-  {
-    "enrollment_id": 5
-  }
-  ```
-- **Response (200 OK)**:
-  ```json
-  {
-    "id": "cs_test_a1B2c3...",
-    "url": "https://checkout.stripe.com/pay/cs_test_..."
-  }
-  ```
-
 #### Create PayPal Order
-- **URL**: `/api/payments/paypal/create-order/`
+- **URL**: `/api/paypal/create-order/`
 - **Method**: `POST`
 - **Payload**:
   ```json
@@ -173,7 +156,7 @@ Authorization: Bearer <your_jwt_access_token>
   ```
 
 #### Trigger Admin Refund
-- **URL**: `/api/payments/refund/<payment_id>/`
+- **URL**: `/api/refund/<payment_id>/`
 - **Method**: `POST`
 - **Response (200 OK)**:
   ```json

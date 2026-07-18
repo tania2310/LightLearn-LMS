@@ -157,7 +157,7 @@ function Login() {
                         <div className="error-alert-banner">{errors.general}</div>
                      )}
 
-                     <button type="submit" disabled={loading} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", width: "100%" }}>
+                     <button type="submit" className="primary-btn" disabled={loading} style={{ width: "100%" }}>
                          {loading ? <span className="spinner-loader" style={{ width: "16px", height: "16px", borderWidth: "2px" }} /> : "Login"}
                      </button>
                     <p
@@ -177,8 +177,9 @@ function Login() {
                 {portal !== "admin" && (
 
                     <button
-                        className="register-btn"
+                        className="secondary-btn"
                         onClick={() => navigate(`/register?role=${portal}`)}
+                        style={{ width: "100%", marginTop: "20px" }}
                     >
                         Create {portal} Account
                     </button>

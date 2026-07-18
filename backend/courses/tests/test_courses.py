@@ -33,14 +33,14 @@ class CourseManagementTests(APITestCase):
         }
         self.course_list_url = reverse("course-list") # Registered via DefaultRouter in courses/urls.py
 
-    def test_mentor_can_create_pending_course(self):
+    def test_mentor_can_create_draft_course(self):
         self.client.force_authenticate(user=self.mentor)
         response = self.client.post(self.course_list_url, self.course_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Course.objects.count(), 1)
         
         course = Course.objects.first()
-        self.assertEqual(course.status, "pending")
+        self.assertEqual(course.status, "draft")
 
     def test_admin_can_approve_course(self):
         # Create a pending course first

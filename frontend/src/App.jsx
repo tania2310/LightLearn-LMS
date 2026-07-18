@@ -41,11 +41,13 @@ import PaymentHistory from "./pages/PaymentHistory";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import { NotificationProvider } from "./components/NotificationProvider";
+import { ThemeProvider } from "./context/ThemeContext";
 
 function App() {
   return (
-    <NotificationProvider>
-      <Routes>
+    <ThemeProvider>
+      <NotificationProvider>
+        <Routes>
         <Route path="/" element={<Login />} />
 
       <Route path="/register" element={<Register />} />
@@ -318,6 +320,7 @@ function App() {
 
       </Routes>
     </NotificationProvider>
+  </ThemeProvider>
   );
 }
 

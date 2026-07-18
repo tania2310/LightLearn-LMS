@@ -1,112 +1,293 @@
+/* Sticky Two-Level Navbar */
 .navbar {
-    height: 70px;
-    background: #1e293b;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+    background: var(--navbar-bg);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, .05);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Top Row styling */
+.navbar-top {
+    height: 60px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 40px;
-    color: white;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, .15);
+    border-bottom: 1px solid var(--border);
 }
 
-.logo {
-    font-size: 28px;
+.navbar-logo {
+    font-size: 24px;
     font-weight: 700;
-    color: white;
-}
-
-.nav-links {
+    color: var(--text-h);
+    cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 30px;
+    gap: 8px;
 }
 
-.nav-links a {
-    color: white;
-    text-decoration: none;
-    font-size: 17px;
-    font-weight: 500;
-    transition: .25s;
-}
-
-.nav-links a:hover {
-    color: #60a5fa;
-}
-
-.user-section {
+.navbar-profile-section {
     display: flex;
     align-items: center;
-    gap: 18px;
+    gap: 15px;
 }
 
-.badge {
-    padding: 5px 14px;
-    border-radius: 30px;
-    text-transform: capitalize;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.student {
-    background: #16a34a;
-}
-
-.mentor {
-    background: #ea580c;
-}
-
-.admin {
-    background: #dc2626;
-}
-
+/* Avatar styling */
 .avatar {
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     background: #2563eb;
     display: flex;
     justify-content: center;
     align-items: center;
     font-weight: bold;
-    font-size: 18px;
+    font-size: 16px;
+    color: white;
+    flex-shrink: 0;
+    object-fit: cover;
+}
+
+.badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: capitalize;
+    font-size: 12px;
+    font-weight: 600;
     color: white;
 }
 
-.logout-btn {
-    background: #ef4444;
+.student {
+    background: var(--success);
+}
+
+.mentor {
+    background: var(--warning);
+}
+
+.admin {
+    background: var(--danger);
+}
+
+.navbar-logout {
+    background: var(--danger);
     color: white;
     border: none;
-    padding: 10px 18px;
-    border-radius: 8px;
+    padding: 6px 12px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: .2s;
+    font-weight: 500;
+    font-size: 0.85rem;
+    transition: background 0.2s;
 }
 
-.logout-btn:hover {
-    background: #dc2626;
+.navbar-logout:hover {
+    filter: brightness(0.9);
 }
 
+/* Bottom Row styling */
+.navbar-bottom {
+    height: 48px;
+    background: var(--surface-hover);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+}
+
+/* Dark theme specific bottom row adjustment */
+[data-theme="dark"] .navbar-bottom,
+[data-theme="system"] .navbar-bottom {
+    background: var(--surface);
+}
+
+.navbar-links {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.navbar-link {
+    color: var(--text);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 6px 4px;
+    position: relative;
+    transition: color 0.2s;
+}
+
+.navbar-link:hover {
+    color: var(--primary);
+}
+
+.navbar-active {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.navbar-active::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--primary);
+    border-radius: 2px;
+}
+
+/* Responsive elements */
+.navbar-hamburger {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-h);
+    cursor: pointer;
+}
+
+/* Search positioning */
+.navbar-search-container {
+    position: relative;
+    display: inline-block;
+}
+
+.navbar-search-input {
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    font-size: 0.85rem;
+    width: 220px;
+    background: var(--bg);
+    color: var(--text-h);
+    outline: none;
+    transition: width 0.2s;
+}
+
+.navbar-search-input:focus {
+    width: 280px;
+    border-color: var(--accent);
+}
+
+.navbar-suggestions-dropdown {
+    position: absolute;
+    top: 35px;
+    right: 0;
+    width: 280px;
+    background: var(--card-bg, #ffffff);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    z-index: 1100;
+    max-height: 300px;
+    overflow-y: auto;
+    text-align: left;
+}
+
+.navbar-suggestions-section {
+    padding: 8px 12px;
+}
+
+.navbar-suggestions-section + .navbar-suggestions-section {
+    border-top: 1px solid var(--border);
+}
+
+.navbar-suggestions-header {
+    font-size: 0.75rem;
+    color: var(--primary);
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.navbar-suggestion-item {
+    display: block;
+    padding: 6px 0;
+    color: var(--text-h);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: color 0.2s;
+}
+
+.navbar-suggestion-item.clickable {
+    cursor: pointer;
+}
+
+.navbar-suggestion-item:hover {
+    color: var(--primary);
+}
+
+.navbar-suggestions-empty {
+    padding: 10px;
+    text-align: center;
+    color: var(--text);
+    font-size: 0.85rem;
+}
+
+/* Tablet viewport adaptation */
+@media (max-width: 992px) {
+    .navbar-links {
+        gap: 16px;
+    }
+}
+
+/* Mobile responsive drawer */
 @media (max-width: 768px) {
-    .navbar {
+    .navbar-hamburger {
+        display: block;
+    }
+
+    .navbar-bottom {
+        display: none;
         height: auto;
         flex-direction: column;
-        padding: 20px;
+        align-items: stretch;
+        padding: 15px 20px;
         gap: 15px;
+        background: var(--surface-hover);
+        border-top: 1px solid var(--border);
     }
-    
-    .nav-links {
+
+    [data-theme="dark"] .navbar-bottom,
+    [data-theme="system"] .navbar-bottom {
+        background: var(--surface);
+    }
+
+    .navbar-bottom.open {
+        display: flex;
+    }
+
+    .navbar-links {
         flex-direction: column;
+        align-items: flex-start;
         gap: 12px;
         width: 100%;
-        text-align: center;
+    }
+
+    .navbar-link {
+        width: 100%;
+        padding: 8px 0;
+    }
+
+    .navbar-active::after {
+        display: none;
+    }
+
+    .navbar-search-input {
+        width: 100%;
+    }
+
+    .navbar-search-input:focus {
+        width: 100%;
     }
     
-    .user-section {
-        flex-direction: column;
-        gap: 10px;
-        width: 100%;
-        align-items: center;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        padding-top: 15px;
+    .navbar-top {
+        padding: 0 20px;
     }
 }

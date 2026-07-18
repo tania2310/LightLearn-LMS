@@ -61,7 +61,7 @@ class CourseViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         course = serializer.save(
             mentor=self.request.user,
-            status="pending"
+            status="draft"
         )
         try:
             from search.indexing import update_course_index
@@ -96,6 +96,51 @@ class CourseViewSet(viewsets.ModelViewSet):
         return Response(
             {"message": "Course submitted for approval."},
             status=status.HTTP_200_OK,
+        )
+
+    @action(detail=True, methods=["post"], url_path="submit-for-approval", permission_classes=[IsAuthenticated])
+    def submit_for_approval(self, request, pk=None):
+        if request.user.role != "mentor":
+            return Response(
+                {"error": "Only mentors can submit courses for approval."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        course = self.get_object()
+
+        if course.mentor != request.user:
+            return Response(
+                {"error": "Only the course owner may submit this course."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        if course.status in ["pending", "approved"]:
+            return Response(
+                {"error": f"Course is already {course.get_status_display()}."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if course.status != "draft":
+            return Response(
+                {"error": "Only draft courses can be submitted for approval."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        course.status = "pending"
+        course.save()
+
+        try:
+            from search.indexing import update_course_index
+            update_course_index(course)
+        except Exception:
+            pass
+
+        return Response(
+            {
+                "message": "Course submitted for approval.",
+                "status": "Pending"
+            },
+            status=status.HTTP_200_OK
         )
 
     @action(detail=True, methods=["post"], permission_classes=[IsMentor])

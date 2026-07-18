@@ -8,14 +8,15 @@ from courses.models import Enrollment
 from rest_framework.exceptions import ValidationError
 from rest_framework.views import APIView
 import os
-import stripe
 import requests
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-
-stripe.api_key = os.getenv("STRIPE_SECRET_KEY", "sk_test_51P8zWvSFP015112526TaniaNirmalMockKey")
-
 import logging
+from django.http import FileResponse
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+import io
+
 logger = logging.getLogger("payments")
 
 class RefundRequestViewSet(viewsets.ModelViewSet):
@@ -83,99 +84,7 @@ class RefundRequestViewSet(viewsets.ModelViewSet):
         return Response({"message": "Refund request rejected."})
 
 
-class CreateStripeCheckoutSession(APIView):
-    permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request):
-        enrollment_id = request.data.get("enrollment_id")
-        try:
-            enrollment = Enrollment.objects.get(id=enrollment_id, student=request.user)
-        except Enrollment.DoesNotExist:
-            logger.warning(f"Stripe checkout request failed: Enrollment {enrollment_id} not found.")
-            return Response({"error": "Enrollment not found"}, status=404)
-
-        course = enrollment.course
-        if course.price <= 0:
-            logger.warning(f"Stripe checkout request failed: Course {course.id} is free.")
-            return Response({"error": "This course is free."}, status=400)
-
-        try:
-            amount_cents = int(course.price * 100)
-            
-            session = stripe.checkout.Session.create(
-                payment_method_types=['card'],
-                line_items=[{
-                    'price_data': {
-                        'currency': 'inr',
-                        'product_data': {
-                            'name': course.title,
-                            'description': course.description[:250],
-                        },
-                        'unit_amount': amount_cents,
-                    },
-                    'quantity': 1,
-                }],
-                mode='payment',
-                success_url=f"http://localhost:5173/payment-success?session_id={{CHECKOUT_SESSION_ID}}",
-                cancel_url="http://localhost:5173/payment-cancel",
-                metadata={
-                    'enrollment_id': str(enrollment.id),
-                    'student_id': str(request.user.id)
-                }
-            )
-
-            payment, created = Payment.objects.update_or_create(
-                enrollment=enrollment,
-                defaults={
-                    'student': request.user,
-                    'provider': 'Stripe',
-                    'payment_intent_id': session.id,
-                    'amount': course.price,
-                    'currency': 'INR',
-                    'status': 'Pending'
-                }
-            )
-
-            logger.info(f"Stripe checkout session created: {session.id} for enrollment {enrollment.id}")
-            return Response({"id": session.id, "url": session.url})
-        except Exception as e:
-            logger.error(f"Failed to create Stripe session for enrollment {enrollment.id}: {str(e)}")
-            return Response({"error": str(e)}, status=400)
-
-
-class CheckStripeSessionView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
-    def post(self, request):
-        session_id = request.data.get("session_id")
-        if not session_id:
-            logger.warning("Stripe check session failed: session_id missing.")
-            return Response({"error": "session_id is required"}, status=400)
-
-        try:
-            session = stripe.checkout.Session.retrieve(session_id)
-            if session.payment_status == 'paid':
-                payment = Payment.objects.get(payment_intent_id=session_id)
-                payment.status = "Paid"
-                payment.transaction_id = session.payment_intent
-                payment.save()
-
-                enrollment = payment.enrollment
-                enrollment.status = "approved"
-                enrollment.save()
-                try:
-                    from notifications.services import send_enrollment_notification
-                    send_enrollment_notification(enrollment)
-                except Exception as e:
-                    pass
-
-                logger.info(f"Stripe payment success verified: {session_id} for enrollment {enrollment.id}")
-                return Response({"status": "Paid", "message": "Payment verified."})
-            logger.warning(f"Stripe session check incomplete status: {session.payment_status} for {session_id}")
-            return Response({"status": session.payment_status, "message": "Payment not completed."})
-        except Exception as e:
-            logger.error(f"Stripe session check verification failed for {session_id}: {str(e)}")
-            return Response({"error": str(e)}, status=400)
 
 
 class CreatePayPalOrder(APIView):
@@ -192,10 +101,10 @@ class CreatePayPalOrder(APIView):
         if course.price <= 0:
             return Response({"error": "This course is free."}, status=400)
 
-        client_id = os.getenv("PAYPAL_CLIENT_ID", "mock_paypal_client_id")
-        client_secret = os.getenv("PAYPAL_SECRET", "mock_paypal_secret")
+        client_id = os.getenv("PAYPAL_CLIENT_ID")
+        client_secret = os.getenv("PAYPAL_SECRET")
 
-        is_mock = client_id == "mock_paypal_client_id"
+        is_mock = not client_id or not client_secret
 
         if is_mock:
             import uuid
@@ -211,7 +120,7 @@ class CreatePayPalOrder(APIView):
                     'status': 'Pending'
                 }
             )
-            return Response({"id": order_id, "approval_url": f"http://localhost:5173/payment-success?paypal_order_id={order_id}"})
+            return Response({"id": order_id, "approval_url": f"http://localhost:5173/payment-success?paypal_order_id={order_id}&course_id={course.id}"})
 
         try:
             auth_response = requests.post(
@@ -231,18 +140,20 @@ class CreatePayPalOrder(APIView):
                     "intent": "CAPTURE",
                     "purchase_units": [{
                         "amount": {
-                            "currency_code": "INR",
+                            "currency_code": "USD",
                             "value": str(course.price)
                         },
                         "custom_id": str(enrollment.id)
                     }],
                     "application_context": {
-                        "return_url": "http://localhost:5173/payment-success",
-                        "cancel_url": "http://localhost:5173/payment-cancel"
+                        "return_url": f"http://localhost:5173/payment-success?course_id={course.id}",
+                        "cancel_url": f"http://localhost:5173/payment-cancel?course_id={course.id}"
                     }
                 }
             )
             order_data = order_response.json()
+
+            print(order_data)
             order_id = order_data.get("id")
             
             approval_url = ""
@@ -257,10 +168,14 @@ class CreatePayPalOrder(APIView):
                     'provider': 'PayPal',
                     'transaction_id': order_id,
                     'amount': course.price,
-                    'currency': 'INR',
+                    'currency': 'USD',
                     'status': 'Pending'
                 }
             )
+            if not approval_url:
+                return Response({
+                    "error": order_data
+                }, status=400)
 
             return Response({"id": order_id, "approval_url": approval_url})
         except Exception as e:
@@ -278,10 +193,28 @@ class CapturePayPalOrder(APIView):
             logger.warning(f"PayPal capture failed: Payment record for order {order_id} not found.")
             return Response({"error": "Payment record not found"}, status=404)
 
-        client_id = os.getenv("PAYPAL_CLIENT_ID", "mock_paypal_client_id")
-        client_secret = os.getenv("PAYPAL_SECRET", "mock_paypal_secret")
+        # Idempotency check:
+        if payment.status == "Paid":
+            return Response({
+            "success": True,
+            "status": "Paid",
+            "message": "PayPal order captured successfully.",
+            "transaction_id": payment.transaction_id,
+            "course": payment.enrollment.course.title,
+            "course_id": payment.enrollment.course.id,
+            "amount": str(payment.amount),
+            "payment_id": payment.id
+        })
 
-        is_mock = client_id == "mock_paypal_client_id"
+        # Verify order has not already been captured in the local database by another payment
+        already_captured = Payment.objects.filter(transaction_id=order_id, status="Paid").exclude(id=payment.id).exists()
+        if already_captured:
+            return Response({"error": "This order has already been captured by another transaction."}, status=400)
+
+        client_id = os.getenv("PAYPAL_CLIENT_ID", "AZMLB3eLDYGV7pv3I1KP_1aRt1eQRYOcu5uQNm1B5OQzuElgsD9LcYBrLFNDHMwvw2_0aYE4ddVPHXGQ")
+        client_secret = os.getenv("PAYPAL_SECRET", "EAeBO9nnuZjbOjDnpLD0WmcrNPCKib7XFGG3fQs4sK7MGyyXgY13BNYbMgADwYgJz9ONLlgVWchQQ5oj")
+
+        is_mock = client_id == "AZMLB3eLDYGV7pv3I1KP_1aRt1eQRYOcu5uQNm1B5OQzuElgsD9LcYBrLFNDHMwvw2_0aYE4ddVPHXGQ"
 
         if is_mock:
             payment.status = "Paid"
@@ -297,7 +230,16 @@ class CapturePayPalOrder(APIView):
                 pass
 
             logger.info(f"PayPal mock payment captured successfully: order {order_id} for enrollment {enrollment.id}")
-            return Response({"status": "Paid", "message": "Mock payment captured successfully."})
+            return Response({
+                "success": True,
+                "status": "Paid",
+                "message": "Mock payment captured successfully.",
+                "transaction_id": payment.transaction_id,
+                "course": payment.enrollment.course.title,
+                "course_id": payment.enrollment.course.id,
+                "amount": str(payment.amount),
+                "payment_id": payment.id
+            })
 
         try:
             auth_response = requests.post(
@@ -315,7 +257,10 @@ class CapturePayPalOrder(APIView):
                 }
             )
             capture_data = capture_response.json()
-            if capture_data.get("status") == "COMPLETED":
+            
+            # Verify the PayPal order has been successfully captured using the existing PayPal API response
+            status_val = capture_data.get("status")
+            if status_val == "COMPLETED":
                 payment.status = "Paid"
                 payment.save()
 
@@ -329,141 +274,23 @@ class CapturePayPalOrder(APIView):
                     pass
 
                 logger.info(f"PayPal sandbox payment captured: order {order_id} for enrollment {enrollment.id}")
-                return Response({"status": "Paid", "message": "PayPal order captured successfully."})
-            logger.warning(f"PayPal capture incomplete status: {capture_data.get('status')} for order {order_id}")
-            return Response({"status": capture_data.get("status"), "message": "Failed to capture PayPal order."}, status=400)
+                return Response({
+                    "success": True,
+                    "status": "Paid",
+                    "message": "PayPal order captured successfully.",
+                    "transaction_id": payment.transaction_id,
+                    "course": payment.enrollment.course.title,
+                    "amount": str(payment.amount),
+                    "payment_id": payment.id
+                })
+            logger.warning(f"PayPal capture incomplete status: {status_val} for order {order_id}")
+            return Response({"status": status_val, "message": "Failed to capture PayPal order."}, status=400)
         except Exception as e:
             logger.error(f"PayPal capture request failed for order {order_id}: {str(e)}")
             return Response({"error": str(e)}, status=400)
 
 
-@method_decorator(csrf_exempt, name='dispatch')
-class StripeWebhookView(APIView):
-    permission_classes = [permissions.AllowAny]
 
-    def post(self, request):
-        payload = request.body
-        sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
-        endpoint_secret = os.getenv("STRIPE_WEBHOOK_SECRET", "whsec_test")
-
-        if not endpoint_secret or endpoint_secret == "whsec_test":
-            import json
-            try:
-                event = json.loads(payload)
-            except Exception:
-                logger.error("Stripe webhook: JSON payload parsing failed.")
-                return Response(status=400)
-        else:
-            try:
-                event = stripe.Webhook.construct_event(
-                    payload, sig_header, endpoint_secret
-                )
-            except Exception as e:
-                logger.error(f"Stripe webhook signature verification failed: {str(e)}")
-                return Response(status=400)
-
-        event_type = event.get('type')
-        logger.info(f"Stripe Webhook received event: {event_type}")
-
-        if event_type == 'checkout.session.completed':
-            session = event['data']['object']
-            metadata = session.get('metadata', {})
-            enrollment_id = metadata.get('enrollment_id')
-            if enrollment_id:
-                try:
-                    payment = Payment.objects.get(payment_intent_id=session.get('id'))
-                    payment.status = "Paid"
-                    payment.transaction_id = session.get('payment_intent')
-                    payment.save()
-
-                    enrollment = payment.enrollment
-                    enrollment.status = "approved"
-                    enrollment.save()
-                    try:
-                        from notifications.services import send_enrollment_notification
-                        send_enrollment_notification(enrollment)
-                    except Exception as e:
-                        pass
-                    logger.info(f"Stripe Webhook processed success: Session {session.get('id')} for enrollment {enrollment_id}")
-                except Payment.DoesNotExist:
-                    logger.warning(f"Stripe Webhook: Payment record not found for session {session.get('id')}")
-                    pass
-
-        elif event_type == 'charge.dispute.created':
-            dispute = event['data']['object']
-            charge_id = dispute.get('charge')
-            payment_intent_id = dispute.get('payment_intent')
-            from django.db.models import Q
-            payment = Payment.objects.filter(
-                Q(transaction_id=charge_id) | Q(payment_intent_id=payment_intent_id) | Q(transaction_id=payment_intent_id)
-            ).first()
-
-            if payment:
-                payment.status = "Disputed"
-                payment.disputed_at = timezone.now()
-                payment.dispute_reference = dispute.get('id')
-                payment.save()
-
-                RefundRequest.objects.update_or_create(
-                    student=payment.student,
-                    enrollment=payment.enrollment,
-                    defaults={
-                        'reason': f"Access revoked due to payment dispute {dispute.get('id')}.",
-                        'status': "Approved",
-                        'reviewed_at': timezone.now()
-                    }
-                )
-                logger.info(f"Stripe dispute created: {dispute.get('id')} for payment {payment.id}. Entitlement revoked.")
-
-        elif event_type == 'charge.dispute.closed':
-            dispute = event['data']['object']
-            charge_id = dispute.get('charge')
-            payment_intent_id = dispute.get('payment_intent')
-            from django.db.models import Q
-            payment = Payment.objects.filter(
-                Q(transaction_id=charge_id) | Q(payment_intent_id=payment_intent_id) | Q(transaction_id=payment_intent_id)
-            ).first()
-
-            if payment:
-                dispute_status = dispute.get('status')
-                if dispute_status == 'won':
-                    payment.status = "Paid"
-                    payment.save()
-
-                    refund_req = RefundRequest.objects.filter(enrollment=payment.enrollment).first()
-                    if refund_req:
-                        refund_req.status = "Rejected"
-                        refund_req.reviewed_at = timezone.now()
-                        refund_req.save()
-                    logger.info(f"Stripe dispute resolved (won): {dispute.get('id')} for payment {payment.id}. Entitlement restored.")
-                else:
-                    logger.info(f"Stripe dispute resolved (lost): {dispute.get('id')} for payment {payment.id}. Entitlement remains revoked.")
-
-        elif event_type == 'charge.refunded':
-            charge = event['data']['object']
-            charge_id = charge.get('id')
-            payment_intent_id = charge.get('payment_intent')
-            from django.db.models import Q
-            payment = Payment.objects.filter(
-                Q(transaction_id=charge_id) | Q(payment_intent_id=payment_intent_id) | Q(transaction_id=payment_intent_id)
-            ).first()
-
-            if payment:
-                payment.status = "Refunded"
-                payment.save()
-
-                RefundRequest.objects.update_or_create(
-                    student=payment.student,
-                    enrollment=payment.enrollment,
-                    defaults={
-                        'reason': "Access revoked due to refund event.",
-                        'status': "Approved",
-                        'reviewed_at': timezone.now()
-                    }
-                )
-                logger.info(f"Stripe charge refunded: {charge_id} for payment {payment.id}. Entitlement revoked.")
-
-        return Response(status=200)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -572,15 +399,7 @@ class RefundPaymentView(APIView):
 
         logger.info(f"Admin initiated refund for payment {payment_id} via provider {payment.provider}")
 
-        if payment.provider == "Stripe":
-            try:
-                stripe.Refund.create(
-                    payment_intent=payment.transaction_id,
-                )
-                logger.info(f"Stripe refund API call succeeded for payment intent {payment.transaction_id}")
-            except Exception as e:
-                logger.error(f"Stripe refund API error: {str(e)}")
-        elif payment.provider == "PayPal":
+        if payment.provider == "PayPal":
             client_id = os.getenv("PAYPAL_CLIENT_ID", "mock_paypal_client_id")
             client_secret = os.getenv("PAYPAL_SECRET", "mock_paypal_secret")
             if client_id != "mock_paypal_client_id":
@@ -641,3 +460,81 @@ class PaymentHistoryView(APIView):
         
         serializer = PaymentSerializer(payments, many=True)
         return Response(serializer.data)
+
+
+class DownloadReceiptView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, payment_id):
+        try:
+            payment = Payment.objects.get(id=payment_id)
+        except Payment.DoesNotExist:
+            return Response({"error": "Payment not found"}, status=404)
+
+        # Authenticated student owner or admin only
+        if request.user.role != "admin" and payment.student != request.user:
+            return Response({"error": "You are not authorized to view this receipt."}, status=403)
+
+        # Only allow paid transactions
+        if payment.status != "Paid":
+            return Response({"error": "Receipt is only available for paid transactions."}, status=400)
+
+        # Generate PDF dynamically using ReportLab
+        buffer = io.BytesIO()
+        p = canvas.Canvas(buffer, pagesize=letter)
+        width, height = letter
+
+        # Header
+        p.setFont("Helvetica-Bold", 24)
+        p.drawString(100, height - 80, "LightLearn LMS")
+        
+        p.setStrokeColorRGB(0.7, 0.7, 0.7)
+        p.setLineWidth(1)
+        p.line(100, height - 95, width - 100, height - 95)
+
+        # Receipt Title
+        p.setFont("Helvetica-Bold", 16)
+        p.drawString(100, height - 130, "PAYMENT RECEIPT")
+
+        p.setFont("Helvetica-Bold", 11)
+        p.drawString(100, height - 170, "Receipt Number:")
+        p.drawString(100, height - 195, "Transaction ID:")
+        p.drawString(100, height - 220, "Student Name:")
+        p.drawString(100, height - 245, "Student Email:")
+        p.drawString(100, height - 270, "Course Title:")
+        p.drawString(100, height - 295, "Mentor Name:")
+        p.drawString(100, height - 320, "Amount Paid:")
+        p.drawString(100, height - 345, "Payment Method:")
+        p.drawString(100, height - 370, "Payment Date:")
+        p.drawString(100, height - 395, "Status:")
+
+        p.setFont("Helvetica", 11)
+        date_str = payment.updated_at.strftime("%Y-%m-%d %H:%M:%S") if payment.updated_at else "N/A"
+        receipt_num = f"REC-{payment.id}-{payment.created_at.strftime('%Y%m%d%H%M%S') if payment.created_at else '00000000000000'}"
+        
+        p.drawString(250, height - 170, receipt_num)
+        p.drawString(250, height - 195, payment.transaction_id or "N/A")
+        p.drawString(250, height - 220, payment.student.username or "N/A")
+        p.drawString(250, height - 245, payment.student.email or "N/A")
+        p.drawString(250, height - 270, payment.enrollment.course.title or "N/A")
+        p.drawString(250, height - 295, payment.enrollment.course.mentor.username or "N/A")
+        p.drawString(250, height - 320, f"${payment.amount} {payment.currency}")
+        p.drawString(250, height - 345, "PayPal")
+        p.drawString(250, height - 370, date_str)
+
+        # Status badge/text: "Paid"
+        p.setFont("Helvetica-Bold", 11)
+        p.setFillColorRGB(0.09, 0.63, 0.29) # green color
+        p.drawString(250, height - 395, "Paid")
+
+        # Footer
+        p.setFillColorRGB(0, 0, 0)
+        p.setFont("Helvetica-Oblique", 10)
+        p.drawString(100, 100, "Thank you for your enrollment in LightLearn LMS!")
+        p.drawString(100, 85, "If you have any questions, please contact support.")
+
+        p.showPage()
+        p.save()
+
+        buffer.seek(0)
+        return FileResponse(buffer, as_attachment=True, filename=f"receipt-{payment.id}.pdf", content_type="application/pdf")

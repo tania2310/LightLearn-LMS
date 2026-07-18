@@ -12,6 +12,8 @@ function MentorDashboard() {
 
     const rejected = courses.filter(c => c.status === "rejected").length;
 
+    const drafts = courses.filter(c => c.status === "draft").length;
+
     const totalStudentsEnrolled = courses.reduce((sum, c) => sum + (c.enrolled_count || 0), 0);
     const ratedCourses = courses.filter(c => c.average_rating > 0);
     const averageRating = ratedCourses.length > 0 
@@ -32,7 +34,7 @@ function MentorDashboard() {
     }, []);
 
     const submitCourse = (id) => {
-        API.post(`courses/${id}/submit/`)
+        API.post(`courses/${id}/submit-for-approval/`)
             .then(() => {
                 alert("Course submitted for approval.");
 
@@ -68,11 +70,11 @@ function MentorDashboard() {
         <>
             <Navbar />
 
-            <div className="dashboard">
+            <div className="dashboard-container">
                 <h1>Mentor Dashboard</h1>
 
                 <Link to="/mentor/create-course">
-                    <button>Create Course</button>
+                    <button className="primary-btn">Create Course</button>
                 </Link>
 
                 <hr />
@@ -81,6 +83,11 @@ function MentorDashboard() {
                     <div className="card">
                         <h2>{courses.length}</h2>
                         <p>Total Courses</p>
+                    </div>
+
+                    <div className="card">
+                        <h2>{drafts}</h2>
+                        <p>Drafts</p>
                     </div>
 
                     <div className="card">
@@ -172,44 +179,40 @@ function MentorDashboard() {
                                 <p>
                                     <strong>Status:</strong>{" "}
                                     <span className={`status ${course.status}`}>
-                                        {course.status}
+                                        {course.status === "draft"
+                                            ? "Draft"
+                                            : course.status === "pending"
+                                            ? "Pending Approval"
+                                            : course.status === "approved"
+                                            ? "Approved"
+                                            : course.status === "rejected"
+                                            ? "Rejected"
+                                            : course.status}
                                     </span>
                                 </p>
 
-                                <div style={{ marginTop: "15px" }}>
+                                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "15px" }}>
                                     <Link to={`/mentor/course/${course.id}/edit`}>
-                                        <button>Edit</button>
+                                        <button className="primary-btn">Edit</button>
                                     </Link>
 
                                     <Link to={`/courses/${course.id}/modules`}>
-                                        <button
-                                            style={{
-                                                marginLeft: "10px",
-                                                background: "#2563eb",
-                                                color: "white",
-                                            }}
-                                        >
+                                        <button className="primary-btn">
                                             Manage Modules
                                         </button>
                                     </Link>
 
                                     <button
-                                        style={{
-                                            background: "#dc3545",
-                                            color: "white",
-                                            marginLeft: "10px",
-                                        }}
+                                        className="primary-btn"
                                         onClick={() => deleteCourse(course.id)}
                                     >
                                         Delete
                                     </button>
 
-                                    {" "}
-
                                     {course.status === "draft" && (
                                         <button
+                                            className="primary-btn"
                                             onClick={() => submitCourse(course.id)}
-                                            style={{ marginLeft: "10px" }}
                                         >
                                             Submit for Approval
                                         </button>

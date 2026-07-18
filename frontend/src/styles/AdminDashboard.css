@@ -10,11 +10,12 @@
 }
 
 .card {
-    background: white;
+    background: var(--card-bg);
     border-radius: 12px;
     padding: 25px;
     text-align: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, .1);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
 }
 
 .course-card {
@@ -22,9 +23,10 @@
     gap: 25px;
     margin: 25px 0;
     padding: 20px;
-    background: white;
+    background: var(--card-bg);
     border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, .1);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
 }
 
 .course-card img {
@@ -68,12 +70,13 @@
 }
 
 .admin-table-container {
-    background: white;
+    background: var(--card-bg);
     border-radius: 12px;
     padding: 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, .05);
+    box-shadow: var(--shadow);
     margin-bottom: 30px;
     overflow-x: auto;
+    border: 1px solid var(--border);
 }
 
 .admin-table {
@@ -173,10 +176,10 @@
 }
 
 .report-card {
-    background: white;
+    background: var(--card-bg);
     padding: 20px;
     border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, .05);
+    box-shadow: var(--shadow);
     text-align: center;
     border: 1px solid var(--border);
 }

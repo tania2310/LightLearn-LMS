@@ -14,7 +14,7 @@ LightLearn-LMS/
 │   ├── courses/          # Courses metadata, modules, and lessons
 │   ├── discussion/       # Channels consumers & moderated discussions
 │   ├── enrollments/      # Request courses enrollments
-│   ├── payments/         # Stripe/PayPal capture and webhook receivers
+│   ├── payments/         # PayPal capture and webhook receivers
 │   ├── qa/               # Lesson Q&A forums
 │   └── reviews/          # Course rating views
 ├── frontend/
@@ -36,13 +36,10 @@ Create `.env` inside `/backend` following `.env.example`:
 - `ALLOWED_HOSTS`: Comma-separated list of hostnames.
 - `DATABASE_URL`: Cloud PostgreSQL connection URI.
 - `REDIS_URL`: Redis URI used as Channel Layer broker.
-- `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` / `VITE_STRIPE_PUBLIC_KEY`
-- `PAYPAL_CLIENT_ID` / `PAYPAL_SECRET`
-
+- `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET` / `PAYPAL_MODE`
 Create `.env` inside `/frontend` following `.env.example`:
 - `VITE_API_URL`: Root path of the backend REST endpoints.
 - `VITE_WS_URL`: Root path of the WebSocket ASGI Daphne service.
-- `VITE_STRIPE_PUBLIC_KEY`: Stripe card token gateway key.
 
 ---
 
@@ -98,7 +95,7 @@ CHANNEL_LAYERS = {
    ```
 
 ### Frontend (Vercel/Netlify)
-1. Configure environment variables (`VITE_API_URL`, `VITE_WS_URL`, `VITE_STRIPE_PUBLIC_KEY`).
+1. Configure environment variables (`VITE_API_URL`, `VITE_WS_URL`).
 2. Build command:
    ```bash
    npm run build

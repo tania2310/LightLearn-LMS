@@ -13,7 +13,7 @@ This manual describes how to use LightLearn LMS from the perspective of differen
 
 ### Purchasing & Enrollment
 1. **Browse Courses**: Select "Browse Courses" on the dashboard.
-2. **Request Enrollment**: For paid courses, click "Buy Course" which redirects to the Checkout page. Select Stripe (Card) or PayPal to complete transaction payments.
+2. **Request Enrollment**: For paid courses, click "Buy Course" which redirects to the Checkout page. Click "Continue with PayPal" to complete transaction payments.
 3. **Free Course**: For free courses, click "Request Enrollment" to register your interest (requires admin approval).
 
 ### Learning Flow
@@ -47,5 +47,5 @@ This manual describes how to use LightLearn LMS from the perspective of differen
 2. **Approve Mentors**: Review and approve mentor registrations.
 3. **Approve Courses**: Review pending courses created by mentors to publish them to the active catalog.
 4. **Review Moderation**: Delete invalid or toxic course reviews.
-5. **Process Refunds**: Review student refund requests. Clicking "Approve" automatically refunds the payment via Stripe/PayPal and revokes enrollment access.
+5. **Process Refunds**: Review student refund requests. Clicking "Approve" automatically refunds the payment via PayPal and revokes enrollment access.
 6. **Download Reports**: Generate PDF reports for users, courses, certificates, and enrollments.

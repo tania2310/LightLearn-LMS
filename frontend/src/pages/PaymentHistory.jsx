@@ -7,7 +7,7 @@ function PaymentHistory() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        API.get("payments/history/")
+        API.get("history/")
             .then(res => {
                 setPayments(res.data);
                 setLoading(false);
@@ -17,6 +17,23 @@ function PaymentHistory() {
                 setLoading(false);
             });
     }, []);
+
+    const downloadReceipt = (paymentId) => {
+        API.get(`receipt/${paymentId}/`, { responseType: 'blob' })
+            .then(response => {
+                const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', `receipt-${paymentId}.pdf`);
+                document.body.appendChild(link);
+                link.click();
+                link.parentNode.removeChild(link);
+            })
+            .catch(err => {
+                console.error("Failed to download receipt:", err);
+                alert("Failed to download receipt.");
+            });
+    };
 
     return (
         <>
@@ -43,6 +60,7 @@ function PaymentHistory() {
                                         <th style={{ padding: "12px 10px" }}>Status</th>
                                         <th style={{ padding: "12px 10px" }}>Transaction ID</th>
                                         <th style={{ padding: "12px 10px" }}>Date</th>
+                                        <th style={{ padding: "12px 10px" }}>Receipt</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -85,6 +103,27 @@ function PaymentHistory() {
                                                     {payment.transaction_id || payment.payment_intent_id || "N/A"}
                                                 </td>
                                                 <td style={{ padding: "12px 10px" }}>{dateStr}</td>
+                                                <td style={{ padding: "12px 10px" }}>
+                                                    {payment.status === "Paid" ? (
+                                                        <button 
+                                                            onClick={() => downloadReceipt(payment.id)}
+                                                            style={{ 
+                                                                backgroundColor: "#7c3aed", 
+                                                                color: "white", 
+                                                                padding: "6px 12px", 
+                                                                border: "none", 
+                                                                borderRadius: "4px", 
+                                                                cursor: "pointer", 
+                                                                fontSize: "0.85rem",
+                                                                fontWeight: "600"
+                                                            }}
+                                                        >
+                                                            Download PDF
+                                                        </button>
+                                                    ) : (
+                                                        <span style={{ color: "var(--text-d)", fontSize: "0.85rem" }}>—</span>
+                                                    )}
+                                                </td>
                                             </tr>
                                         );
                                     })}

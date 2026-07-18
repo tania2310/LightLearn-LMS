@@ -296,7 +296,4 @@ ELASTICSEARCH_DSL = {
         "hosts": os.getenv("ELASTICSEARCH_URL", "http://localhost:9200")
     }
 }
-
-import sys
-if "test" in sys.argv:
-    ELASTICSEARCH_DSL_SIGNAL_PROCESSOR = "django_elasticsearch_dsl.signals.BaseSignalProcessor"
+ELASTICSEARCH_DSL_SIGNAL_PROCESSOR = "django_elasticsearch_dsl.signals.BaseSignalProcessor"

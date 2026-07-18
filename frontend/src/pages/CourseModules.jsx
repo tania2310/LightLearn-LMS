@@ -12,14 +12,19 @@ function CourseModules() {
     const [modules, setModules] = useState([]);
     const [completedLessonIds, setCompletedLessonIds] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [courseQuizzes, setCourseQuizzes] = useState([]);
+    const [quizPassed, setQuizPassed] = useState(false);
+    const [isCertificateEarned, setIsCertificateEarned] = useState(false);
 
     useEffect(() => {
         setLoading(true);
         Promise.all([
             API.get(`courses/${id}/`),
-            API.get("progress/")
+            API.get("progress/"),
+            API.get("quizzes/"),
+            API.get("certificates/").catch(() => ({ data: [] }))
         ])
-            .then(([courseResponse, progressResponse]) => {
+            .then(([courseResponse, progressResponse, quizzesResponse, certResponse]) => {
                 const courseData = courseResponse.data;
                 setCourse(courseData);
                 
@@ -31,12 +36,24 @@ function CourseModules() {
                         lessons: (m.lessons || []).sort((a, b) => a.order - b.order)
                     }));
                 setModules(sortedMods);
-
+ 
                 // Extract completed lesson IDs
                 const completedIds = progressResponse.data
                     .filter(item => item.completed)
                     .map(item => item.lesson);
                 setCompletedLessonIds(completedIds);
+
+                // Check course quizzes and certificates status
+                const lessonsFlat = sortedMods.flatMap(m => m.lessons || []);
+                const allLessonIds = lessonsFlat.map(l => l.id);
+                const filteredQuizzes = quizzesResponse.data.filter(q => allLessonIds.includes(q.lesson));
+                setCourseQuizzes(filteredQuizzes);
+
+                const passed = localStorage.getItem(`quiz_passed_${id}`) === "true";
+                setQuizPassed(passed);
+
+                const earned = certResponse.data.some(c => c.course === Number(id));
+                setIsCertificateEarned(earned);
             })
             .catch((error) => {
                 console.error("Error loading course modules / progress:", error);
@@ -113,7 +130,7 @@ function CourseModules() {
                         <Link to={`/courses/${id}/chat`} className="btn-secondary">
                             🗣️ Course Chat
                         </Link>
-                        {progressPercent === 100 && (
+                        {progressPercent === 100 && (courseQuizzes.length === 0 || quizPassed) && (
                             <Link to={`/courses/${id}/certificate`} className="btn-primary-flow">
                                 🎓 Claim Certificate
                             </Link>
@@ -140,6 +157,65 @@ function CourseModules() {
                         </div>
                     </div>
                 </div>
+
+                {progressPercent === 100 && (
+                    <div className="card completion-workflow-card" style={{ padding: "30px", marginBottom: "30px", background: "var(--card-bg)", borderRadius: "12px", border: "1px solid var(--border)", boxShadow: "var(--shadow)", textAlign: "center" }}>
+                        {courseQuizzes.length > 0 && !quizPassed ? (
+                            <div>
+                                <h2 style={{ color: "var(--warning)", marginBottom: "10px" }}>Course Completed</h2>
+                                <p style={{ color: "var(--text-secondary)", marginBottom: "25px", fontSize: "1.05rem" }}>
+                                    Take the quiz to unlock your certificate.
+                                </p>
+                                <button 
+                                    className="primary-btn" 
+                                    onClick={() => navigate(`/quiz/${courseQuizzes[0].id}`)}
+                                    style={{ padding: "12px 30px" }}
+                                >
+                                    Start Quiz
+                                </button>
+                            </div>
+                        ) : (
+                            <div>
+                                {isCertificateEarned ? (
+                                    <div>
+                                        <h2 style={{ color: "var(--success)", marginBottom: "10px" }}>Certificate Ready</h2>
+                                        <p style={{ color: "var(--text-secondary)", marginBottom: "25px" }}>Congratulations! You have completed this course.</p>
+                                        <div style={{ display: "flex", gap: "15px", justifyContent: "center" }}>
+                                            <button 
+                                                className="primary-btn" 
+                                                onClick={() => navigate(`/courses/${id}/certificate`)}
+                                                style={{ padding: "12px 25px" }}
+                                            >
+                                                View
+                                            </button>
+                                            <button 
+                                                className="secondary-btn" 
+                                                onClick={() => navigate(`/courses/${id}/certificate`)}
+                                                style={{ padding: "12px 25px" }}
+                                            >
+                                                Download
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div>
+                                        <h2 style={{ color: "var(--success)", marginBottom: "10px" }}>Congratulations!</h2>
+                                        <p style={{ color: "var(--text-secondary)", marginBottom: "25px", fontSize: "1.05rem" }}>
+                                            You are eligible for a certificate.
+                                        </p>
+                                        <button 
+                                            className="primary-btn" 
+                                            onClick={() => navigate(`/courses/${id}/certificate`)}
+                                            style={{ padding: "12px 30px" }}
+                                        >
+                                            Apply for Certificate
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 <div className="modules-list">
                     <h2>Course Syllabus</h2>

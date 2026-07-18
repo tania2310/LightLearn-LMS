@@ -21,6 +21,10 @@ function Checkout() {
                     .then(enrollRes => {
                         const found = enrollRes.data.find(e => e.course === Number(courseId));
                         if (found) {
+                            if (found.status === "approved") {
+                                navigate(`/courses/${courseId}/modules`);
+                                return;
+                            }
                             setEnrollment(found);
                             setLoading(false);
                         } else {
@@ -48,29 +52,13 @@ function Checkout() {
             });
     }, [courseId]);
 
-    const handleStripePayment = () => {
-        if (!enrollment) return;
-        setProcessing(true);
-        API.post("payments/stripe/create-checkout-session/", { enrollment_id: enrollment.id })
-            .then(res => {
-                if (res.data.url) {
-                    window.location.href = res.data.url;
-                } else {
-                    alert("Stripe session url not returned.");
-                    setProcessing(false);
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                alert("Failed to initiate Stripe Checkout.");
-                setProcessing(false);
-            });
-    };
 
     const handlePayPalPayment = () => {
         if (!enrollment) return;
         setProcessing(true);
-        API.post("payments/paypal/create-order/", { enrollment_id: enrollment.id })
+        API.post("paypal/create-order/", {
+            enrollment_id: enrollment.id
+        })
             .then(res => {
                 if (res.data.approval_url) {
                     window.location.href = res.data.approval_url;
@@ -125,21 +113,13 @@ function Checkout() {
 
                     <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                         <p style={{ margin: 0, fontWeight: "600", fontSize: "0.95rem" }}>Choose Payment Method:</p>
-                        <button 
-                            className="course-btn" 
-                            disabled={processing}
-                            onClick={handleStripePayment}
-                            style={{ backgroundColor: "#635bff", color: "white", padding: "12px", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "600" }}
-                        >
-                            {processing ? "Redirecting..." : "Pay with Stripe (Card)"}
-                        </button>
-                        <button 
-                            className="course-btn" 
+                        <button
+                            className="course-btn"
                             disabled={processing}
                             onClick={handlePayPalPayment}
                             style={{ backgroundColor: "#ffc439", color: "#111", padding: "12px", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "600" }}
                         >
-                            {processing ? "Redirecting..." : "Pay with PayPal"}
+                            {processing ? "Redirecting..." : "Continue with PayPal"}
                         </button>
                     </div>
                 </div>

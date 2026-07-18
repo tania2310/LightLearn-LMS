@@ -101,10 +101,6 @@ function Dashboard() {
                         <div className="welcome-card">
                             <h1>Welcome, {user.username} 👋</h1>
 
-                            <p>Email: {user.email}</p>
-
-                            <p>Role: {user.role}</p>
-
                             <Link to="/courses">
                                 <button className="primary-btn">
                                     Browse Courses

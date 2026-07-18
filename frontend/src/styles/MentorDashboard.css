@@ -1,5 +1,5 @@
 .dashboard {
-    padding: 40px;
+    /* Container class dashboard-container used in MentorDashboard.jsx */
 }
 
 .stats {
@@ -10,16 +10,13 @@
 }
 
 .card {
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, .08);
     text-align: center;
 }
 
 .card h2 {
     margin: 0;
     font-size: 32px;
+    color: var(--text-primary);
 }
 
 .course-card {
@@ -27,9 +24,6 @@
     gap: 25px;
     margin: 25px 0;
     padding: 20px;
-    border-radius: 12px;
-    background: white;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, .08);
 }
 
 .course-card img {
@@ -61,6 +55,10 @@
 
 .rejected {
     background: #f44336;
+}
+
+.draft {
+    background: #6c757d;
 }
 
 .actions button {
