@@ -19,7 +19,6 @@ from django.utils.http import urlsafe_base64_decode
 from django.shortcuts import redirect
 import random
 from django.utils import timezone
-from django.db import transaction
 from datetime import timedelta
 from django.contrib.auth.hashers import make_password
 
@@ -31,22 +30,30 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
 
     def perform_create(self, serializer):
-        with transaction.atomic():
-            user = serializer.save()
+        print("Creating user...")
 
-            otp = str(random.randint(100000, 999999))
-            user.otp = otp
-            user.otp_created = timezone.now()
-            user.is_email_verified = False
-            user.save()
+        user = serializer.save()
 
-            send_mail(
-                "LightLearn Email Verification",
-                f"Your OTP is: {otp}",
-                settings.EMAIL_HOST_USER,
-                [user.email],
-                fail_silently=False,
-            )
+        print("User created.")
+
+        otp = str(random.randint(100000, 999999))
+
+        user.otp = otp
+        user.otp_created = timezone.now()
+        user.is_email_verified = False
+        user.save()
+
+        print("Sending email...")
+
+        send_mail(
+            "LightLearn Email Verification",
+            f"Your OTP is: {otp}",
+            settings.EMAIL_HOST_USER,
+            [user.email],
+            fail_silently=False,
+        )
+
+        print("Email sent.")
 
 @api_view(["POST"])
 def verify_otp(request):
