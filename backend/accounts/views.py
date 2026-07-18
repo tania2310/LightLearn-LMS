@@ -1,4 +1,3 @@
-import smtplib
 from rest_framework import generics
 from .models import User
 from .serializers import (
@@ -46,36 +45,15 @@ class RegisterView(generics.CreateAPIView):
 
         print("Sending email...")
 
-        import smtplib
-
-        print("Opening SMTP connection...")
-
-        server = smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT, timeout=10)
-
-        print("Connected")
-
-        server.starttls()
-
-        print("TLS started")
-
-        server.login(
-            settings.EMAIL_HOST_USER,
-            settings.EMAIL_HOST_PASSWORD
-        )
-
-        print("Logged in")
-
-        server.sendmail(
-            settings.EMAIL_HOST_USER,
+        send_mail(
+            "LightLearn Email Verification",
+            f"Your OTP is: {otp}",
+            settings.DEFAULT_FROM_EMAIL,
             [user.email],
-            f"Subject: OTP\n\nYour OTP is: {otp}"
+            fail_silently=False,
         )
 
-        print("Mail sent")
-
-        server.quit()
-
-        print("Done")
+        print("Email sent.")
 
 @api_view(["POST"])
 def verify_otp(request):
