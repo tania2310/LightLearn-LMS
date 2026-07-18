@@ -13,10 +13,10 @@ constantly==23.10.4
 cryptography==49.0.0
 daphne==4.2.2
 dj-database-url==2.3.0
-Django==6.0.7
+Django==5.2.8
 django-allauth==65.18.0
 django-cors-headers==4.9.0
-django-elasticsearch-dsl==9.0
+django-elasticsearch-dsl==8.2
 django-extensions==4.1
 django-filter==25.2
 djangorestframework==3.17.1
