@@ -242,7 +242,7 @@ DEFAULT_FROM_EMAIL = os.getenv(
     EMAIL_HOST_USER,
 )
 
-EMAIL_TIMEOUT = 15
+EMAIL_TIMEOUT = 60
 
 LOGGING = {
     'version': 1,
