@@ -1,4 +1,3 @@
-from docutils.nodes import status
 from email.mime import nonmultipart
 from accounts import models
 from rest_framework import generics, status
