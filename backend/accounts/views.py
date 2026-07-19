@@ -1,4 +1,3 @@
-from .email_utils import send_otp_email
 from accounts import models
 from rest_framework import generics, status
 from .models import User
@@ -45,19 +44,17 @@ class RegisterView(generics.CreateAPIView):
             user.is_email_verified = False
             user.save()
 
-            try:
-                send_otp_email(user.email, otp)
-            except Exception as e:
-                return Response(
-                    {
-                        "error": str(e)
-                    },
-                    status=500
-                )
+            send_mail(
+                "LightLearn Email Verification",
+                f"Your OTP is: {otp}",
+                settings.DEFAULT_FROM_EMAIL,
+                [user.email],
+                fail_silently=False,
+            )
 
             return Response(
                 {
-                    "message": "Registration successful. VERSION2."
+                    "message": "Registration successful. OTP sent to mail."
                 },
                 status=status.HTTP_201_CREATED,
             )
