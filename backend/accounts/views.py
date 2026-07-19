@@ -1,3 +1,5 @@
+from email.mime import nonmultipart
+from accounts import models
 from rest_framework import generics
 from .models import User
 from .serializers import (
@@ -17,9 +19,10 @@ from django.utils.encoding import force_bytes
 from django.conf import settings
 from django.utils.http import urlsafe_base64_decode
 from django.shortcuts import redirect
-import random
+import random, traceback
 from django.utils import timezone
 from datetime import timedelta
+from django.db import transaction
 from django.contrib.auth.hashers import make_password
 
 
@@ -29,31 +32,51 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
 
-    def perform_create(self, serializer):
-        print("Creating user...")
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-        user = serializer.save()
+        try:
+            user = serializer.save()
 
-        print("User created.")
+            otp = str(random.randint(100000, 999999))
+            user.otp = otp
+            user.otp_created = timezone.now()
+            user.is_email_verified = False
+            user.save()
 
-        otp = str(random.randint(100000, 999999))
+            try:
+                #send_mail(
+                    #"LightLearn Email Verification",
+                    #f"Your OTP is: {otp}",
+                    #settings.DEFAULT_FROM_EMAIL,
+                    #[user.email],
+                    #fail_silently=False,
+                #)
+                pass
+            except Exception as e:
+                return Response(
+                    {
+                        "error": str(e),
+                        "exception": type(e).__name__,
+                    },
+                    status=500,
+                )
+            return Response(
+                {"message": "Registration successful. OTP sent."},
+                status=201,
+            )
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
 
-        user.otp = otp
-        user.otp_created = timezone.now()
-        user.is_email_verified = False
-        user.save()
-
-        print("Sending email...")
-
-        send_mail(
-            "LightLearn Email Verification",
-            f"Your OTP is: {otp}",
-            settings.DEFAULT_FROM_EMAIL,
-            [user.email],
-            fail_silently=False,
-        )
-
-        print("Email sent.")
+            return Response(
+                {
+                    "error": str(e),
+                    "type": type(e).__name__,
+                },
+                status=500,
+            )
 
 @api_view(["POST"])
 def verify_otp(request):
