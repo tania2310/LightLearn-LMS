@@ -1,6 +1,7 @@
+from docutils.nodes import status
 from email.mime import nonmultipart
 from accounts import models
-from rest_framework import generics
+from rest_framework import generics, status
 from .models import User
 from .serializers import (
     RegisterSerializer,
@@ -53,14 +54,35 @@ class RegisterView(generics.CreateAPIView):
                     [user.email],
                     fail_silently=False,
                 )
+
             except Exception as e:
+                traceback.print_exc()
+
                 return Response(
-                    {
-                        "error": str(e),
-                        "exception": type(e).__name__,
-                    },
-                    status=500,
-                )
+                {
+                    "error": str(e),
+                    "type": type(e).__name__,
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+            return Response(
+                {
+                    "message": "Registration successful. OTP sent."
+                },
+                status=status.HTTP_201_CREATED,
+            )
+
+        except Exception as e:
+            traceback.print_exc()
+
+            return Response(
+                {
+                    "error": str(e),
+                    "type": type(e).__name__,
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 @api_view(["POST"])
 def verify_otp(request):
