@@ -6,6 +6,7 @@ BREVO_API_KEY = os.getenv("BREVO_API_KEY")
 
 
 def send_otp_email(email, otp):
+    raise Exception("EMAIL FUNCTION IS BEING CALLED")
     url = "https://api.brevo.com/v3/smtp/email"
 
     headers = {

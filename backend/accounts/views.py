@@ -1,4 +1,3 @@
-from .email_service import send_otp_email
 from .email_utils import send_otp_email
 from accounts import models
 from rest_framework import generics, status

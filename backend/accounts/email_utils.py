@@ -17,11 +17,7 @@ def send_otp_email(email, otp):
             "name": "LightLearn",
             "email": "tanianirmal17498@gmail.com"
         },
-        "to": [
-            {
-                "email": email
-            }
-        ],
+        "to": [{"email": email}],
         "subject": "LightLearn Email Verification",
         "htmlContent": f"""
         <h2>LightLearn</h2>
@@ -33,5 +29,9 @@ def send_otp_email(email, otp):
 
     response = requests.post(url, json=payload, headers=headers)
 
-    if response.status_code not in (200, 201):
-        raise Exception(response.text)
+    print("Status:", response.status_code)
+    print("Response:", response.text)
+
+    response.raise_for_status()
+
+    return response.json()
