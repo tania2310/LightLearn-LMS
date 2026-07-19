@@ -58,7 +58,7 @@ class RegisterView(generics.CreateAPIView):
 
             return Response(
                 {
-                    "message": "Registration successful. OTP sent."
+                    "message": "Registration successful. VERSION2."
                 },
                 status=status.HTTP_201_CREATED,
             )
