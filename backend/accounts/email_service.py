@@ -1,3 +1,4 @@
+from django.http import response
 import os
 import requests
 
@@ -36,11 +37,16 @@ def send_otp_email(email, otp):
     }
 
     response = requests.post(
-        url,
+    url,
         json=payload,
         headers=headers,
         timeout=20,
     )
+
+    print("========== BREVO RESPONSE ==========")
+    print("Status Code:", response.status_code)
+    print("Response Body:", response.text)
+    print("====================================")
 
     response.raise_for_status()
 
