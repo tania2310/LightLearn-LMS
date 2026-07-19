@@ -83,33 +83,7 @@ function Register() {
                 alert("Something went wrong.");
             }
         }
-
-        try {
-            await API.post("accounts/register/", {
-                username,
-                email,
-                password,
-                first_name: firstName,
-                last_name: lastName,
-                phone_number: phoneNumber,
-                role,
-            });
-
-            alert("OTP sent to your email.");
-            navigate("/verify-otp", {
-                state: { email }
-            });
-
-        } catch (error) {
-            setLoading(false);
-            if (error.response?.data) {
-                setErrors(error.response.data);
-            } else {
-                alert("Something went wrong.");
-            }
-        }
     };
-
     return (
         <div className="register-container">
             <div className="register-card">

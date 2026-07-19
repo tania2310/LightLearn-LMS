@@ -46,14 +46,13 @@ class RegisterView(generics.CreateAPIView):
             user.save()
 
             try:
-                #send_mail(
-                    #"LightLearn Email Verification",
-                    #f"Your OTP is: {otp}",
-                    #settings.DEFAULT_FROM_EMAIL,
-                    #[user.email],
-                    #fail_silently=False,
-                #)
-                pass
+                send_mail(
+                    "LightLearn Email Verification",
+                    f"Your OTP is: {otp}",
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                    fail_silently=False,
+                )
             except Exception as e:
                 return Response(
                     {
@@ -62,21 +61,6 @@ class RegisterView(generics.CreateAPIView):
                     },
                     status=500,
                 )
-            return Response(
-                {"message": "Registration successful. OTP sent."},
-                status=201,
-            )
-        except Exception as e:
-            import traceback
-            traceback.print_exc()
-
-            return Response(
-                {
-                    "error": str(e),
-                    "type": type(e).__name__,
-                },
-                status=500,
-            )
 
 @api_view(["POST"])
 def verify_otp(request):
