@@ -1,4 +1,5 @@
-from email.mime import nonmultipart
+from .email_service import send_otp_email
+from .email_utils import send_otp_email
 from accounts import models
 from rest_framework import generics, status
 from .models import User
@@ -46,24 +47,14 @@ class RegisterView(generics.CreateAPIView):
             user.save()
 
             try:
-                send_mail(
-                    "LightLearn Email Verification",
-                    f"Your OTP is: {otp}",
-                    settings.DEFAULT_FROM_EMAIL,
-                    [user.email],
-                    fail_silently=False,
-                )
-
+                send_otp_email(user.email, otp)
             except Exception as e:
-                traceback.print_exc()
-
                 return Response(
-                {
-                    "error": str(e),
-                    "type": type(e).__name__,
-                },
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+                    {
+                        "error": str(e)
+                    },
+                    status=500
+                )
 
             return Response(
                 {
