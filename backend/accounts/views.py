@@ -27,7 +27,9 @@ from django.db import transaction
 from django.contrib.auth.hashers import make_password
 import smtplib
 from email.mime.text import MIMEText
+
 import os
+import resend
 
 
 GMAIL_APP_PASSWORD = "nilt fvlc tlby yyui"  # NOT your normal password
@@ -56,26 +58,25 @@ class RegisterView(generics.CreateAPIView):
             user.is_email_verified = False
             user.save()
 
-            def send_test_email(TO_EMAIL, SUBJECT, BODY):
-                msg = MIMEText(BODY, "plain")
-                msg["Subject"] = SUBJECT
-                msg["From"] = GMAIL_ADDRESS
-                msg["To"] = TO_EMAIL
- 
+            def send_otp_email(TO_EMAIL, SUBJECT, BODY):
                 try:
-                    server = smtplib.SMTP(SMTP_HOST, SMTP_PORT)
-                    server.starttls()
-                    server.login(GMAIL_ADDRESS, GMAIL_APP_PASSWORD)
-                    server.sendmail(GMAIL_ADDRESS, [TO_EMAIL], msg.as_string())
-                    server.quit()
-                    print(f"✅ Email sent successfully to {TO_EMAIL}")
+                    resend.api_key = "re_KvJTW85c_7DZXbkskC6vmYB9iRZW1j7yp"
+                    resend.Emails.send({
+                        "from": "onboarding@resend.dev",
+                        "to": TO_EMAIL,
+                        "subject": SUBJECT,
+                        "text": BODY,
+                    })
+                    print(f"✅ Email sent to {TO_EMAIL}")
+                    return True
                 except Exception as e:
                     print(f"❌ Failed to send email: {e}")
+                    return False
 
 
 
 
-            send_test_email(
+            send_otp_email(
                 user.email,
                 "LightLearn Email Verification",
                 f"Your OTP is: {otp}",
