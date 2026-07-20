@@ -196,6 +196,8 @@ else:
           "http://localhost:5175",
         "http://127.0.0.1:5173",
         "https://light-learn-lms.vercel.app",
+        "https://learnhub-git-master-interns2.vercel.app/",
+        "https://light-learn-lms.vercel.app/"
     ]
 
 csrf_origins_env = os.getenv("CSRF_TRUSTED_ORIGINS")
@@ -207,6 +209,9 @@ else:
         "http://localhost:5174",
         "http://127.0.0.1:5173",
         "https://light-learn-lms.vercel.app",
+       "https://learnhub-git-master-interns2.vercel.app/",
+       "https://light-learn-lms.vercel.app/"
+
     ]
 
 REST_FRAMEWORK = {
