@@ -29,6 +29,18 @@ function PendingEnrollments() {
             .catch(console.log);
     };
 
+    const rejectEnrollment = (id) => {
+        API.post(`enrollments/reject/${id}/`)
+            .then(() => {
+                alert("Enrollment Rejected!");
+
+                setEnrollments((prev) =>
+                    prev.filter((e) => e.id !== id)
+                );
+            })
+            .catch(console.log);
+    };
+
     return (
         <>
             <Navbar />
@@ -56,9 +68,16 @@ function PendingEnrollments() {
                                     <button
                                         className="primary-btn"
                                         onClick={() => approveEnrollment(enrollment.id)}
-                                        style={{ width: "100%" }}
+                                        style={{ flex: 1 }}
                                     >
-                                        Approve Enrollment
+                                        Approve
+                                    </button>
+                                    <button
+                                        className="secondary-btn"
+                                        onClick={() => rejectEnrollment(enrollment.id)}
+                                        style={{ flex: 1, background: "var(--danger)" }}
+                                    >
+                                        Reject
                                     </button>
                                 </div>
                             </div>

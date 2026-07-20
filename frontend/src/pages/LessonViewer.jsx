@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import API from "../api/api";
 import Navbar from "../components/Navbar";
@@ -20,6 +20,105 @@ function LessonViewer() {
     const [courseQuizzes, setCourseQuizzes] = useState([]);
     const [textContent, setTextContent] = useState("");
     const [textLoading, setTextLoading] = useState(false);
+
+    // AI Q&A Assistant state hooks
+    const [aiConversationId, setAiConversationId] = useState(null);
+    const [aiMessages, setAiMessages] = useState([]);
+    const [aiInput, setAiInput] = useState("");
+    const [aiLoading, setAiLoading] = useState(false);
+    const [aiError, setAiError] = useState(null);
+    const [isAiOpen, setIsAiOpen] = useState(false);
+    const chatWindowRef = useRef(null);
+
+    // Automatically load this lesson's conversation history
+    useEffect(() => {
+        if (role === "student" && id) {
+            setAiMessages([]);
+            setAiInput("");
+            setAiError(null);
+            setAiConversationId(null);
+            API.get(`qa/ai-conversations/?lesson=${id}`)
+                .then(res => {
+                    if (res.data) {
+                        setAiConversationId(res.data.id);
+                        if (res.data.messages) {
+                            setAiMessages(res.data.messages);
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.error("Error loading AI conversation history:", err);
+                });
+        }
+    }, [id, role]);
+
+    // Keep chat window scrolled to the bottom
+    useEffect(() => {
+        if (chatWindowRef.current) {
+            chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
+        }
+    }, [aiMessages, aiLoading, isAiOpen]);
+
+    const handleSendAiQuestion = (e) => {
+        if (e) e.preventDefault();
+        if (!aiInput.trim() || aiLoading) return;
+
+        const questionText = aiInput.trim();
+        setAiInput("");
+        setAiError(null);
+        setAiLoading(true);
+
+        // Optimistically append student message
+        const studentMsg = {
+            id: Date.now(),
+            sender: "user",
+            message: questionText,
+            created_at: new Date().toISOString()
+        };
+        setAiMessages(prev => [...prev, studentMsg]);
+
+        API.post("qa/ai-conversations/", {
+            lesson: Number(id),
+            question: questionText
+        })
+            .then(res => {
+                if (res.data) {
+                    setAiConversationId(res.data.conversation_id);
+                    if (res.data.messages) {
+                        setAiMessages(res.data.messages);
+                    }
+                }
+            })
+            .catch(err => {
+                console.error("Error sending AI question:", err);
+                setAiError("The AI assistant is temporarily unavailable. Your question was saved. Please try again later.");
+            })
+            .finally(() => {
+                setAiLoading(false);
+            });
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            handleSendAiQuestion();
+        }
+    };
+
+    const handleClearChat = () => {
+        if (!aiConversationId) return;
+        if (window.confirm("Are you sure you want to clear your AI conversation history?")) {
+            API.delete(`qa/ai-conversations/${aiConversationId}/clear/`)
+                .then(() => {
+                    setAiMessages([]);
+                    setAiError(null);
+                })
+                .catch(err => {
+                    console.error("Error clearing chat messages:", err);
+                    alert("Failed to clear chat history.");
+                });
+        }
+    };
 
     // Helpers to get correct media URL
     const getFileUrl = (url) => {
@@ -113,6 +212,34 @@ function LessonViewer() {
         }
     }, [isTextFile, contentUrl]);
 
+    const handleTextDownload = (e) => {
+        e.preventDefault();
+        if (!contentUrl) return;
+        
+        const filename = lesson?.content ? lesson.content.split('/').pop() : `${lesson?.title || 'lesson'}.txt`;
+
+        fetch(contentUrl)
+            .then((res) => {
+                if (!res.ok) throw new Error("Network response was not ok");
+                return res.blob();
+            })
+            .then((blob) => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.style.display = "none";
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            })
+            .catch((err) => {
+                console.error("Error downloading text file:", err);
+                window.location.href = contentUrl;
+            });
+    };
+
     const markComplete = () => {
         if (marking) return;
         setMarking(true);
@@ -122,10 +249,22 @@ function LessonViewer() {
             completed: true
         })
             .then(() => {
+                const isAlreadyCompleted = allLessons.length > 0 && allLessons.every(l => completedLessonIds.includes(l.id));
+                const willComplete = allLessons.length > 0 && allLessons.every(l => 
+                    l.id === Number(id) || completedLessonIds.includes(l.id)
+                );
+
                 setCompleted(true);
                 // Update completed list in local state
                 if (!completedLessonIds.includes(Number(id))) {
                     setCompletedLessonIds(prev => [...prev, Number(id)]);
+                }
+
+                if (!isAlreadyCompleted && willComplete) {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: "smooth"
+                    });
                 }
             })
             .catch((error) => {
@@ -234,12 +373,27 @@ function LessonViewer() {
                     )}
 
                     {lesson.lesson_type === "pdf" && (
-                        <div className="pdf-iframe-container">
-                            <iframe 
-                                className="pdf-iframe" 
-                                src={contentUrl} 
-                                title={lesson.title}
-                            ></iframe>
+                        <div className="doc-download-container" style={{ textAlign: "center", padding: "40px" }}>
+                            <p style={{ fontSize: "1.1rem", marginBottom: "20px", color: "var(--text-primary)" }}>
+                                This lesson is a PDF document. You can view it in a new tab or download it below.
+                            </p>
+                            <div style={{ display: "flex", gap: "15px", justifyContent: "center" }}>
+                                <a 
+                                    href={contentUrl} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer" 
+                                    className="btn-secondary"
+                                >
+                                    📄 Open PDF in New Tab
+                                </a>
+                                <a 
+                                    href={contentUrl} 
+                                    download 
+                                    className="btn-download"
+                                >
+                                    ⬇ Download PDF
+                                </a>
+                            </div>
                         </div>
                     )}
 
@@ -266,6 +420,7 @@ function LessonViewer() {
                                 <a 
                                     href={contentUrl} 
                                     download 
+                                    onClick={handleTextDownload}
                                     className="btn-download"
                                     style={{ padding: "8px 16px", fontSize: "0.9rem" }}
                                 >
@@ -288,6 +443,7 @@ function LessonViewer() {
                                 <a 
                                     href={contentUrl} 
                                     download 
+                                    onClick={isTextFile ? handleTextDownload : undefined}
                                     className="btn-download"
                                 >
                                     ⬇ Download File
@@ -296,6 +452,83 @@ function LessonViewer() {
                         </div>
                     )}
                 </div>
+
+                {role === "student" && (
+                    <div className="ai-panel">
+                        <div className="ai-header" onClick={() => setIsAiOpen(!isAiOpen)}>
+                            <h3>🤖 AI Learning Assistant</h3>
+                            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                                {isAiOpen && aiMessages.length > 0 && (
+                                    <button 
+                                        className="ai-clear-btn" 
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleClearChat();
+                                        }}
+                                    >
+                                        Clear History
+                                    </button>
+                                )}
+                                <span>{isAiOpen ? "▲" : "▼"}</span>
+                            </div>
+                        </div>
+
+                        {isAiOpen && (
+                            <div className="ai-panel-content">
+                                <div className="ai-chat-window" ref={chatWindowRef}>
+                                    {aiMessages.length === 0 && !aiLoading && (
+                                        <div className="ai-empty-state">
+                                            Ask any question about this lesson to start learning with the AI Assistant!
+                                        </div>
+                                    )}
+
+                                    {aiMessages.map((msg, index) => (
+                                        <div
+                                            key={msg.id || index}
+                                            className={`ai-message ${msg.sender === "user" ? "ai-user" : "ai-assistant"}`}
+                                        >
+                                            <div className="ai-message-content">
+                                                {msg.message}
+                                            </div>
+                                        </div>
+                                    ))}
+
+                                    {aiLoading && (
+                                        <div className="ai-message ai-assistant ai-loading">
+                                            <div className="ai-message-content">
+                                                🤖 Thinking...
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {aiError && (
+                                        <div className="ai-error-message">
+                                            ⚠️ {aiError}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="ai-input">
+                                    <textarea
+                                        placeholder="Ask a question about this lesson..."
+                                        value={aiInput}
+                                        onChange={(e) => setAiInput(e.target.value)}
+                                        onKeyDown={handleKeyDown}
+                                        disabled={aiLoading}
+                                        rows={2}
+                                    />
+                                    <button
+                                        className="primary-btn ai-send-btn"
+                                        onClick={handleSendAiQuestion}
+                                        disabled={aiLoading || !aiInput.trim()}
+                                    >
+                                        Ask
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 <div className="viewer-actions">
                     <button 

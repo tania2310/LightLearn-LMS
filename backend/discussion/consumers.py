@@ -105,10 +105,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if user.is_staff:
             return True
 
-        # Check enrollment exists
+        # Check enrollment exists and is approved
         enrolled = Enrollment.objects.filter(
             student=user,
-            course_id=self.course_id
+            course_id=self.course_id,
+            status="approved"
         ).exists()
         if not enrolled:
             return False

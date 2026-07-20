@@ -14,6 +14,7 @@ from .views import (
     AdminStatsView,
     pending_enrollments,
     approve_enrollment,
+    reject_enrollment,
     AdminReportView,
 )
 from django.urls import path
@@ -58,5 +59,9 @@ urlpatterns += [
     path(
         "enrollments/approve/<int:enrollment_id>/",
         approve_enrollment,
+    ),
+    path(
+        "enrollments/reject/<int:enrollment_id>/",
+        reject_enrollment,
     ),
 ]

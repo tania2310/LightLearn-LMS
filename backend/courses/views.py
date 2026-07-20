@@ -219,6 +219,18 @@ class ModuleViewSet(viewsets.ModelViewSet):
     queryset = Module.objects.all()
     serializer_class = ModuleSerializer
 
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == "student":
+            from django.db.models import Q
+            return Module.objects.filter(
+                Q(course__price=0, course__enrollments__student=user, course__enrollments__status="approved") |
+                Q(course__enrollments__student=user, course__enrollments__status="approved", course__enrollments__payments__status="Paid")
+            ).distinct()
+        elif user.role == "mentor":
+            return Module.objects.filter(course__mentor=user)
+        return Module.objects.all()
+
     def get_permissions(self):
 
         if self.action in [
@@ -234,6 +246,18 @@ class ModuleViewSet(viewsets.ModelViewSet):
 class LessonViewSet(viewsets.ModelViewSet):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == "student":
+            from django.db.models import Q
+            return Lesson.objects.filter(
+                Q(module__course__price=0, module__course__enrollments__student=user, module__course__enrollments__status="approved") |
+                Q(module__course__enrollments__student=user, module__course__enrollments__status="approved", module__course__enrollments__payments__status="Paid")
+            ).distinct()
+        elif user.role == "mentor":
+            return Lesson.objects.filter(module__course__mentor=user)
+        return Lesson.objects.all()
 
     def perform_create(self, serializer):
         lesson = serializer.save()
@@ -316,11 +340,22 @@ class QuizViewSet(viewsets.ModelViewSet):
     serializer_class = QuizSerializer
     permission_classes = [IsAuthenticated]
     def get_queryset(self):
+        user = self.request.user
         lesson = self.request.query_params.get("lesson")
-
+        
+        if user.role == "student":
+            qs = Quiz.objects.filter(lesson__module__course__enrollments__student=user, lesson__module__course__enrollments__status="approved")
+            if lesson:
+                qs = qs.filter(lesson=lesson)
+            return qs
+        elif user.role == "mentor":
+            qs = Quiz.objects.filter(lesson__module__course__mentor=user)
+            if lesson:
+                qs = qs.filter(lesson=lesson)
+            return qs
+        
         if lesson:
             return Quiz.objects.filter(lesson=lesson)
-
         return Quiz.objects.all()
 
     @action(detail=True, methods=["post"])
@@ -596,6 +631,16 @@ def approve_enrollment_duplicate(request, enrollment_id):
 
     return Response({
         "message": "Enrollment approved successfully."
+    })
+
+@api_view(["POST"])
+@permission_classes([IsAdminUser])
+def reject_enrollment(request, enrollment_id):
+    enrollment = Enrollment.objects.get(id=enrollment_id)
+    enrollment.status = "rejected"
+    enrollment.save()
+    return Response({
+        "message": "Enrollment rejected."
     })
 
 from reportlab.lib.pagesizes import letter

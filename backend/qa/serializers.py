@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Question, Answer
+from .models import Question, Answer, AIConversation, AIMessage
 
 
 class AnswerSerializer(serializers.ModelSerializer):
@@ -19,3 +19,19 @@ class QuestionSerializer(serializers.ModelSerializer):
         model = Question
         fields = "__all__"
         read_only_fields = ["student"]
+
+
+class AIMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AIMessage
+        fields = ["id", "sender", "message", "model_used", "tokens_used", "created_at"]
+        read_only_fields = ["id", "created_at"]
+
+
+class AIConversationSerializer(serializers.ModelSerializer):
+    messages = AIMessageSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = AIConversation
+        fields = ["id", "lesson", "created_at", "updated_at", "messages"]
+        read_only_fields = ["id", "created_at", "updated_at"]

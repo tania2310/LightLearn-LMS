@@ -73,42 +73,27 @@ function Notifications() {
                                     background: n.is_read ? "var(--card-bg)" : "var(--hover-bg, rgba(124, 58, 237, 0.03))"
                                 }}
                             >
-                                <div style={{ display: "flex", gap: "15px", alignItems: "flex-start" }}>
-                                    <div style={{ fontSize: "1.8rem" }}>{getIcon(n.notification_type)}</div>
-                                    <div style={{ flex: 1 }}>
-                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "5px" }}>
-                                            <span style={{ fontWeight: n.is_read ? "600" : "700", color: "var(--text-h)", fontSize: "1rem" }}>
+                                <div className="notification-card-body">
+                                    <div className="notification-card-icon">{getIcon(n.notification_type)}</div>
+                                    <div className="notification-card-details">
+                                        <div className="notification-card-header">
+                                            <span className="notification-card-title" style={{ fontWeight: n.is_read ? "600" : "700" }}>
                                                 {n.title}
                                             </span>
-                                            <span style={{ fontSize: "0.75rem", color: "var(--text)" }}>
+                                            <span className="notification-card-time">
                                                 {new Date(n.created_at).toLocaleString()}
                                             </span>
                                         </div>
-                                        <p style={{ color: "var(--text)", fontSize: "0.9rem", margin: "0 0 5px 0" }}>
+                                        <p className="notification-card-message">
                                             {n.message}
                                         </p>
-                                        <span style={{
-                                            fontSize: "0.75rem",
-                                            background: "var(--bg)",
-                                            padding: "2px 8px",
-                                            borderRadius: "12px",
-                                            color: "var(--text-h)",
-                                            fontWeight: "500"
-                                        }}>
+                                        <span className="notification-card-type">
                                             {n.notification_type}
                                         </span>
                                     </div>
                                 </div>
                                 {!n.is_read && (
-                                    <div style={{
-                                        position: "absolute",
-                                        top: "15px",
-                                        right: "15px",
-                                        width: "8px",
-                                        height: "8px",
-                                        borderRadius: "50%",
-                                        background: "#7c3aed"
-                                    }} />
+                                    <div className="notification-card-unread" />
                                 )}
                             </div>
                         ))

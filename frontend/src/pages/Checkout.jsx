@@ -12,42 +12,33 @@ function Checkout() {
     const [processing, setProcessing] = useState(false);
 
     useEffect(() => {
-        // Fetch course details
-        API.get(`courses/${courseId}/`)
-            .then(res => {
-                setCourse(res.data);
-                // Check if user already has an enrollment for this course
-                API.get("enrollments/")
-                    .then(enrollRes => {
-                        const found = enrollRes.data.find(e => e.course === Number(courseId));
-                        if (found) {
-                            if (found.status === "approved") {
-                                navigate(`/courses/${courseId}/modules`);
-                                return;
-                            }
-                            setEnrollment(found);
-                            setLoading(false);
-                        } else {
-                            // Create pending enrollment first
-                            API.post("enrollments/", { course: Number(courseId) })
-                                .then(createRes => {
-                                    setEnrollment(createRes.data);
-                                    setLoading(false);
-                                })
-                                .catch(err => {
-                                    console.error("Failed to create enrollment:", err);
-                                    alert("Unable to initiate checkout enrollment.");
-                                    setLoading(false);
-                                });
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        setLoading(false);
-                    });
+        // Fetch course details, enrollment, and payment status
+        Promise.all([
+            API.get(`courses/${courseId}/`),
+            API.get("enrollments/").catch(() => ({ data: [] })),
+            API.get("payments/history/").catch(() => ({ data: [] }))
+        ])
+            .then(([courseRes, enrollRes, payRes]) => {
+                setCourse(courseRes.data);
+                const found = enrollRes.data.find(e => e.course === Number(courseId));
+                
+                if (!found || found.status !== "approved") {
+                    alert("Enrollment approval by admin is required before making a payment.");
+                    navigate(`/courses/${courseId}`);
+                    return;
+                }
+
+                const paidPayment = payRes.data.find(p => (p.enrollment === found.id || p.enrollment_id === found.id) && p.status === "Paid");
+                if (paidPayment || Number(courseRes.data.price) <= 0) {
+                    navigate(`/courses/${courseId}/modules`);
+                    return;
+                }
+
+                setEnrollment(found);
+                setLoading(false);
             })
             .catch(err => {
-                console.error(err);
+                console.error("Checkout initialization error:", err);
                 setLoading(false);
             });
     }, [courseId]);

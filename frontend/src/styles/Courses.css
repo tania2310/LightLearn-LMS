@@ -79,6 +79,50 @@
     background: var(--primary-hover);
 }
 
+.course-card-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.course-card-actions .details-btn {
+    margin-top: 0;
+}
+
+.course-card-actions .details-btn.continue {
+    background: var(--primary);
+}
+
+.course-card-actions .details-btn.continue:hover {
+    background: var(--primary-hover);
+}
+
+.course-status-badge {
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-align: center;
+    color: #fff;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.course-status-badge.completed {
+    background: var(--success);
+}
+
+.course-status-badge.pending {
+    background: var(--warning);
+}
+
+.course-status-badge.rejected {
+    background: var(--danger);
+}
+
 .course-details-page {
     background: var(--background);
     min-height: 100vh;

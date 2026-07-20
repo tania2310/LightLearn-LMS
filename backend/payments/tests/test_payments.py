@@ -39,7 +39,7 @@ class PaymentProcessingTests(APITestCase):
         self.enrollment = Enrollment.objects.create(
             student=self.student,
             course=self.course,
-            status="pending"
+            status="approved"
         )
         self.paypal_create_order_url = reverse("paypal-create-order")
 
@@ -82,7 +82,7 @@ class PaymentProcessingTests(APITestCase):
         url = reverse("paypal-capture-order")
         payload = {"order_id": "PAY-SANDBOX-ORDER-1"}
         
-        with patch.dict("os.environ", {"PAYPAL_CLIENT_ID": "mock_paypal_client_id"}):
+        with patch.dict("os.environ", {"PAYPAL_CLIENT_ID": "AZMLB3eLDYGV7pv3I1KP_1aRt1eQRYOcu5uQNm1B5OQzuElgsD9LcYBrLFNDHMwvw2_0aYE4ddVPHXGQ"}):
             response = self.client.post(url, payload, format="json")
             
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -152,7 +152,7 @@ class PaymentProcessingTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["success"])
         self.assertEqual(response.data["status"], "Paid")
-        self.assertEqual(response.data["message"], "Payment already captured.")
+        self.assertEqual(response.data["message"], "PayPal order captured successfully.")
 
     def test_download_receipt_pdf_success(self):
         payment = Payment.objects.create(

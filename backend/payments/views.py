@@ -97,6 +97,9 @@ class CreatePayPalOrder(APIView):
         except Enrollment.DoesNotExist:
             return Response({"error": "Enrollment not found"}, status=404)
 
+        if enrollment.status != "approved":
+            return Response({"error": "Enrollment must be approved by admin before making payment."}, status=400)
+
         course = enrollment.course
         if course.price <= 0:
             return Response({"error": "This course is free."}, status=400)
@@ -220,16 +223,7 @@ class CapturePayPalOrder(APIView):
             payment.status = "Paid"
             payment.save()
 
-            enrollment = payment.enrollment
-            enrollment.status = "approved"
-            enrollment.save()
-            try:
-                from notifications.services import send_enrollment_notification
-                send_enrollment_notification(enrollment)
-            except Exception as e:
-                pass
-
-            logger.info(f"PayPal mock payment captured successfully: order {order_id} for enrollment {enrollment.id}")
+            logger.info(f"PayPal mock payment captured successfully: order {order_id} for enrollment {payment.enrollment.id}")
             return Response({
                 "success": True,
                 "status": "Paid",
@@ -264,16 +258,7 @@ class CapturePayPalOrder(APIView):
                 payment.status = "Paid"
                 payment.save()
 
-                enrollment = payment.enrollment
-                enrollment.status = "approved"
-                enrollment.save()
-                try:
-                    from notifications.services import send_enrollment_notification
-                    send_enrollment_notification(enrollment)
-                except Exception as e:
-                    pass
-
-                logger.info(f"PayPal sandbox payment captured: order {order_id} for enrollment {enrollment.id}")
+                logger.info(f"PayPal sandbox payment captured: order {order_id} for enrollment {payment.enrollment.id}")
                 return Response({
                     "success": True,
                     "status": "Paid",
@@ -312,15 +297,12 @@ class PayPalWebhookView(APIView):
                     payment.status = "Paid"
                     payment.save()
 
-                    enrollment = payment.enrollment
-                    enrollment.status = "approved"
-                    enrollment.save()
                     try:
                         from notifications.services import send_enrollment_notification
-                        send_enrollment_notification(enrollment)
+                        send_enrollment_notification(payment.enrollment)
                     except Exception as e:
                         pass
-                    logger.info(f"PayPal Webhook processed success: Order {order_id} for enrollment {enrollment.id}")
+                    logger.info(f"PayPal Webhook processed success: Order {order_id} for enrollment {payment.enrollment.id}")
                 else:
                     logger.warning(f"PayPal Webhook: Payment record not found for order {order_id}")
 

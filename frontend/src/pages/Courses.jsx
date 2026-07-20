@@ -8,6 +8,21 @@ function Courses() {
     const [courses, setCourses] = useState([]);
     const [search, setSearch] = useState("");
     const [ordering, setOrdering] = useState("");
+    const [enrollments, setEnrollments] = useState([]);
+    const [payments, setPayments] = useState([]);
+
+    useEffect(() => {
+        const token = localStorage.getItem("access");
+        if (token) {
+            Promise.all([
+                API.get("enrollments/").catch(() => ({ data: [] })),
+                API.get("payments/history/").catch(() => ({ data: [] }))
+            ]).then(([enrollRes, payRes]) => {
+                setEnrollments(enrollRes.data);
+                setPayments(payRes.data);
+            }).catch(console.log);
+        }
+    }, []);
     
     // Filters state
     const [category, setCategory] = useState("");
@@ -345,9 +360,44 @@ function Courses() {
                                             <span>{course.duration} hrs</span>
                                             <span>${course.price}</span>
                                         </div>
-                                        <Link to={`/courses/${course.id}`} className="details-btn">
-                                            View Details
-                                        </Link>
+                                        {(() => {
+                                            const enrollment = enrollments.find(e => e.course === course.id);
+                                            if (enrollment) {
+                                                const paidPayment = payments.find(p => (p.enrollment === enrollment.id || p.enrollment_id === enrollment.id) && p.status === "Paid");
+                                                const isPaid = !!paidPayment || Number(course.price) <= 0;
+
+                                                return (
+                                                    <div className="course-card-actions">
+                                                        <Link to={`/courses/${course.id}`} className="details-btn">
+                                                            View Details
+                                                        </Link>
+                                                        {enrollment.status === "pending" ? (
+                                                            <span className="course-status-badge pending">
+                                                                Waiting for Admin Approval
+                                                            </span>
+                                                        ) : enrollment.status === "rejected" ? (
+                                                            <span className="course-status-badge rejected">
+                                                                Enrollment Rejected
+                                                            </span>
+                                                        ) : !isPaid ? (
+                                                            <Link to={`/checkout/${course.id}`} className="details-btn continue" style={{ backgroundColor: "#22c55e" }}>
+                                                                Make Payment
+                                                            </Link>
+                                                        ) : (
+                                                            <Link to={`/courses/${course.id}/modules`} className="details-btn continue">
+                                                                Continue Learning
+                                                            </Link>
+                                                        )}
+                                                    </div>
+                                                );
+                                            } else {
+                                                return (
+                                                    <Link to={`/courses/${course.id}`} className="details-btn">
+                                                        View Details
+                                                    </Link>
+                                                );
+                                            }
+                                        })()}
                                     </div>
                                 ))
                             )}

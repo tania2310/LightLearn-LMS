@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import API from "../api/api";
 import Navbar from "../components/Navbar";
+import "../styles/EditCourse.css";
 
 function EditCourse() {
     const { id } = useParams();
@@ -47,85 +48,110 @@ function EditCourse() {
         <>
             <Navbar />
 
-            <div style={{ padding: "40px", maxWidth: "700px" }}>
-                <h1>Edit Course</h1>
+            <div className="dashboard-container" style={{ maxWidth: "800px", margin: "0 auto" }}>
+                <h1 style={{ marginBottom: "30px", color: "var(--text-primary)" }}>Edit Course</h1>
 
-                <form onSubmit={handleSubmit}>
+                <div className="card">
+                    <form onSubmit={handleSubmit} className="edit-course-form-grid">
+                        <div className="form-group edit-course-full-width">
+                            <label>Course Title</label>
+                            <input
+                                name="title"
+                                type="text"
+                                value={course.title || ""}
+                                onChange={handleChange}
+                                placeholder="Title"
+                                required
+                            />
+                        </div>
 
-                    <input
-                        name="title"
-                        value={course.title}
-                        onChange={handleChange}
-                        placeholder="Title"
-                    />
+                        <div className="form-group edit-course-full-width">
+                            <label>Description</label>
+                            <textarea
+                                name="description"
+                                rows="6"
+                                value={course.description || ""}
+                                onChange={handleChange}
+                                placeholder="Describe the course content and goals..."
+                                required
+                            />
+                        </div>
 
-                    <br /><br />
+                        {/* Left Column */}
+                        <div className="edit-course-column">
+                            <div className="form-group">
+                                <label>Category</label>
+                                <input
+                                    name="category"
+                                    type="text"
+                                    value={course.category || ""}
+                                    onChange={handleChange}
+                                    placeholder="Category"
+                                    required
+                                />
+                            </div>
 
-                    <textarea
-                        name="description"
-                        rows="5"
-                        value={course.description}
-                        onChange={handleChange}
-                    />
+                            <div className="form-group">
+                                <label>Duration (hours)</label>
+                                <input
+                                    type="number"
+                                    name="duration"
+                                    value={course.duration || ""}
+                                    onChange={handleChange}
+                                    placeholder="Duration"
+                                    required
+                                />
+                            </div>
+                        </div>
 
-                    <br /><br />
+                        {/* Right Column */}
+                        <div className="edit-course-column">
+                            <div className="form-group">
+                                <label>Difficulty Level</label>
+                                <select
+                                    name="level"
+                                    value={course.level || "beginner"}
+                                    onChange={handleChange}
+                                >
+                                    <option value="beginner">Beginner</option>
+                                    <option value="intermediate">Intermediate</option>
+                                    <option value="advanced">Advanced</option>
+                                </select>
+                            </div>
 
-                    <input
-                        name="category"
-                        value={course.category}
-                        onChange={handleChange}
-                        placeholder="Category"
-                    />
+                            <div className="form-group">
+                                <label>Language</label>
+                                <input
+                                    name="language"
+                                    type="text"
+                                    value={course.language || ""}
+                                    onChange={handleChange}
+                                    placeholder="Language"
+                                    required
+                                />
+                            </div>
 
-                    <br /><br />
+                            <div className="form-group">
+                                <label>Price</label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    name="price"
+                                    value={course.price || ""}
+                                    onChange={handleChange}
+                                    placeholder="Price"
+                                    required
+                                />
+                            </div>
+                        </div>
 
-                    <select
-                        name="level"
-                        value={course.level}
-                        onChange={handleChange}
-                    >
-                        <option value="beginner">Beginner</option>
-                        <option value="intermediate">Intermediate</option>
-                        <option value="advanced">Advanced</option>
-                    </select>
-
-                    <br /><br />
-
-                    <input
-                        name="language"
-                        value={course.language}
-                        onChange={handleChange}
-                        placeholder="Language"
-                    />
-
-                    <br /><br />
-
-                    <input
-                        type="number"
-                        name="duration"
-                        value={course.duration}
-                        onChange={handleChange}
-                        placeholder="Duration"
-                    />
-
-                    <br /><br />
-
-                    <input
-                        type="number"
-                        step="0.01"
-                        name="price"
-                        value={course.price}
-                        onChange={handleChange}
-                        placeholder="Price"
-                    />
-
-                    <br /><br />
-
-                    <button type="submit">
-                        Save Changes
-                    </button>
-
-                </form>
+                        <div className="edit-course-submit-container">
+                            <button type="submit" className="primary-btn" style={{ minWidth: "200px" }}>
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </>
     );
