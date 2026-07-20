@@ -186,32 +186,19 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 if not DEBUG:
     STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
-cors_origins_env = os.getenv("CORS_ALLOWED_ORIGINS")
-if cors_origins_env:
-    CORS_ALLOWED_ORIGINS = [o.strip() for o in cors_origins_env.split(",") if o.strip()]
-else:
-    CORS_ALLOWED_ORIGINS = [
-        "http://localhost:5173",
-         "http://localhost:5174",
-          "http://localhost:5175",
-        "http://127.0.0.1:5173",
-        "https://light-learn-lms.vercel.app",
-        "https://learnhub-git-master-interns2.vercel.app/",
-        "https://light-learn-lms.vercel.app/"
-    ]
+# CORS - sab origins allow, koi list ki zaroorat nahi
+CORS_ALLOW_ALL_ORIGINS = True
 
+# CSRF - wildcard support nahi karta, isliye real origins list karo
 csrf_origins_env = os.getenv("CSRF_TRUSTED_ORIGINS")
 if csrf_origins_env:
     CSRF_TRUSTED_ORIGINS = [o.strip() for o in csrf_origins_env.split(",") if o.strip()]
 else:
     CSRF_TRUSTED_ORIGINS = [
         "http://localhost:5173",
-        "http://localhost:5174",
+         "http://localhost:5174",
         "http://127.0.0.1:5173",
         "https://light-learn-lms.vercel.app",
-       "https://learnhub-git-master-interns2.vercel.app/",
-       "https://light-learn-lms.vercel.app/"
-
     ]
 
 REST_FRAMEWORK = {
