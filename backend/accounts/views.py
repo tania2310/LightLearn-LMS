@@ -60,7 +60,7 @@ class RegisterView(generics.CreateAPIView):
 
             def send_otp_email(TO_EMAIL, SUBJECT, BODY):
                 try:
-                    resend.api_key = "re_KvJTW85c_7DZXbkskC6vmYB9iRZW1j7yp"
+                    resend.api_key = os.getenv("RESEND_API_KEY")
                     resend.Emails.send({
                         "from": "onboarding@resend.dev",
                         "to": TO_EMAIL,
