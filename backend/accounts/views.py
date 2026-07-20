@@ -1,3 +1,5 @@
+
+from email.mime.text import MIMEText
 from accounts import models
 from rest_framework import generics, status
 from .models import User
@@ -23,13 +25,23 @@ from django.utils import timezone
 from datetime import timedelta
 from django.db import transaction
 from django.contrib.auth.hashers import make_password
+import smtplib
+from email.mime.text import MIMEText
+import os
 
 
+GMAIL_APP_PASSWORD = "nilt fvlc tlby yyui"  # NOT your normal password
+SMTP_HOST = "smtp.gmail.com"
+SMTP_PORT = 587
+GMAIL_ADDRESS = "tanyawork2310@gmail.com"
 from .tokens import email_verification_token
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
+
+     
+ 
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -44,12 +56,29 @@ class RegisterView(generics.CreateAPIView):
             user.is_email_verified = False
             user.save()
 
-            send_mail(
+            def send_test_email(TO_EMAIL, SUBJECT, BODY):
+                msg = MIMEText(BODY, "plain")
+                msg["Subject"] = SUBJECT
+                msg["From"] = GMAIL_ADDRESS
+                msg["To"] = TO_EMAIL
+ 
+                try:
+                    server = smtplib.SMTP(SMTP_HOST, SMTP_PORT)
+                    server.starttls()
+                    server.login(GMAIL_ADDRESS, GMAIL_APP_PASSWORD)
+                    server.sendmail(GMAIL_ADDRESS, [TO_EMAIL], msg.as_string())
+                    server.quit()
+                    print(f"✅ Email sent successfully to {TO_EMAIL}")
+                except Exception as e:
+                    print(f"❌ Failed to send email: {e}")
+
+
+
+
+            send_test_email(
+                user.email,
                 "LightLearn Email Verification",
                 f"Your OTP is: {otp}",
-                settings.DEFAULT_FROM_EMAIL,
-                [user.email],
-                fail_silently=False,
             )
 
             return Response(

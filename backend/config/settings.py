@@ -192,6 +192,8 @@ if cors_origins_env:
 else:
     CORS_ALLOWED_ORIGINS = [
         "http://localhost:5173",
+         "http://localhost:5174",
+          "http://localhost:5175",
         "http://127.0.0.1:5173",
         "https://light-learn-lms.vercel.app",
     ]
@@ -202,6 +204,7 @@ if csrf_origins_env:
 else:
     CSRF_TRUSTED_ORIGINS = [
         "http://localhost:5173",
+        "http://localhost:5174",
         "http://127.0.0.1:5173",
         "https://light-learn-lms.vercel.app",
     ]
