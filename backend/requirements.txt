@@ -52,4 +52,4 @@ ujson==5.13.0
 urllib3==2.7.0
 whitenoise==6.8.2
 zope.interface==8.5
-resend==0.25.0
+resend==2.34.0
