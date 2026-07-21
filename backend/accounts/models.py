@@ -8,7 +8,7 @@ import random
 class User(AbstractUser):
     is_approved = models.BooleanField(default=False)
     is_email_verified = models.BooleanField(default=False)
-    otp = models.CharField(max_length=6, blank=True)
+    otp = models.CharField(max_length=6, null=True, blank=True)
     otp_created = models.DateTimeField(null=True, blank=True)
 
     STUDENT = "student"

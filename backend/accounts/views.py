@@ -102,37 +102,35 @@ class RegisterView(generics.CreateAPIView):
 
 @api_view(["POST"])
 def verify_otp(request):
-
-    email = request.data.get("email")
-    otp = request.data.get("otp")
-
     try:
+        email = request.data.get("email")
+        otp = request.data.get("otp")
+
         user = User.objects.get(email=email)
 
         if not user.otp_created or timezone.now() > user.otp_created + timedelta(minutes=10):
-            return Response(
-                {"error": "OTP expired"},
-                status=400
-            )
+            return Response({"error": "OTP expired"}, status=400)
 
         if str(user.otp).strip() != str(otp).strip():
-            return Response(
-                {"error": "Invalid OTP"},
-                status=400
-            )
+            return Response({"error": "Invalid OTP"}, status=400)
 
         user.is_email_verified = True
-        user.otp = ""
+        user.otp = None
         user.save()
 
-        return Response(
-            {"message": "Email verified successfully."}
-        )
+        return Response({"message": "Email verified successfully."})
 
     except User.DoesNotExist:
+        return Response({"error": "User not found"}, status=404)
+
+    except Exception as e:
+        traceback.print_exc()
         return Response(
-            {"error": "User not found"},
-            status=404
+            {
+                "error": str(e),
+                "type": type(e).__name__
+            },
+            status=500
         )
 
 @api_view(["POST"])
